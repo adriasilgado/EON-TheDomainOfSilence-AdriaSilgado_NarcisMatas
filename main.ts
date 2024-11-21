@@ -137,6 +137,14 @@ function levelSelector () {
         6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
         6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
         `)
+    EON = sprites.create(assets.image`EON`, SpriteKind.user)
+    EON.setPosition(99, 76)
+    animation.runImageAnimation(
+    EON,
+    lookLeft,
+    200,
+    true
+    )
 }
 function sceneTwo () {
     scene.setBackgroundImage(assets.image`SceneTwo`)
@@ -148,6 +156,27 @@ function sceneOne () {
     game.showLongText("Després de la victoria a The Land Of The Forgotten, EON pren camí en una nova aventura, un regne on els germans del silenci 'Echo' i 'Quietus' tenen el control total, The Domain Of Silence", DialogLayout.Bottom)
     sceneTwo()
 }
+let EON: Sprite = null
 let RecPlay: Sprite = null
+let lookLeft: Image[] = []
 scene.setBackgroundImage(assets.image`myImage`)
 play()
+let lookRight = assets.animation`LookingRight`
+lookLeft = assets.animation`LookingLeft`
+game.onUpdate(function () {
+    if (controller.left.isPressed()) {
+        animation.runImageAnimation(
+        EON,
+        lookLeft,
+        200,
+        true
+        )
+    } else if (controller.right.isPressed()) {
+        animation.runImageAnimation(
+        EON,
+        lookRight,
+        200,
+        true
+        )
+    }
+})

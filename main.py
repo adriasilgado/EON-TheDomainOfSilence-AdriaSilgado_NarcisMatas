@@ -16,6 +16,7 @@ def play():
     RecPlay.set_flag(SpriteFlag.INVISIBLE, True)
     sceneOne()
 def levelSelector():
+    global EON
     scene.set_background_image(img("""
         6666666666666666666669919666666666666666666666666666666666666666666666666666666666666666666666666666666666bd11b66666666666d1b666666666d1d66666666666666666666666
                 6666666666666666666dddd119d666666666666666666bbd19b666666666666666666666666666d6666666666dd6666666d1d6666119d111b66666666b11d66666bddd111d6666666666666666666666
@@ -138,6 +139,11 @@ def levelSelector():
                 6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
                 6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
     """))
+    EON = sprites.create(assets.image("""
+        EON
+    """), SpriteKind.user)
+    EON.set_position(99, 76)
+    animation.run_image_animation(EON, lookLeft, 200, True)
 def sceneTwo():
     scene.set_background_image(assets.image("""
         SceneTwo
@@ -152,8 +158,23 @@ def sceneOne():
     game.show_long_text("Després de la victoria a The Land Of The Forgotten, EON pren camí en una nova aventura, un regne on els germans del silenci 'Echo' i 'Quietus' tenen el control total, The Domain Of Silence",
         DialogLayout.BOTTOM)
     sceneTwo()
+EON: Sprite = None
 RecPlay: Sprite = None
+lookLeft: List[Image] = []
 scene.set_background_image(assets.image("""
     myImage
 """))
 play()
+lookRight = assets.animation("""
+    LookingRight
+""")
+lookLeft = assets.animation("""
+    LookingLeft
+""")
+
+def on_on_update():
+    if controller.left.is_pressed():
+        animation.run_image_animation(EON, lookLeft, 200, True)
+    elif controller.right.is_pressed():
+        animation.run_image_animation(EON, lookRight, 200, True)
+game.on_update(on_on_update)
