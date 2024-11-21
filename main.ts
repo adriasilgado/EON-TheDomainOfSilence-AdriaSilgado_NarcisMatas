@@ -20,6 +20,7 @@ function play() {
 }
 
 function levelSelector() {
+    
     scene.setBackgroundImage(img`
         6666666666666666666669919666666666666666666666666666666666666666666666666666666666666666666666666666666666bd11b66666666666d1b666666666d1d66666666666666666666666
                 6666666666666666666dddd119d666666666666666666bbd19b666666666666666666666666666d6666666666dd6666666d1d6666119d111b66666666b11d66666bddd111d6666666666666666666666
@@ -142,6 +143,11 @@ function levelSelector() {
                 6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
                 6666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666
     `)
+    EON = sprites.create(assets.image`
+        EON
+    `, SpriteKind.user)
+    EON.setPosition(99, 76)
+    animation.runImageAnimation(EON, lookLeft, 200, true)
 }
 
 function sceneTwo() {
@@ -160,8 +166,24 @@ function sceneOne() {
     sceneTwo()
 }
 
+let EON : Sprite = null
 let RecPlay : Sprite = null
+let lookLeft : Image[] = []
 scene.setBackgroundImage(assets.image`
     myImage
 `)
 play()
+let lookRight = assets.animation`
+    LookingRight
+`
+lookLeft = assets.animation`
+    LookingLeft
+`
+game.onUpdate(function on_on_update() {
+    if (controller.left.isPressed()) {
+        animation.runImageAnimation(EON, lookLeft, 200, true)
+    } else if (controller.right.isPressed()) {
+        animation.runImageAnimation(EON, lookRight, 200, true)
+    }
+    
+})
