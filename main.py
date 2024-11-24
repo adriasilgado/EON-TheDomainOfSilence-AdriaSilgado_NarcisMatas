@@ -48,7 +48,7 @@ def levelSelector():
     EON = sprites.create(assets.image("""
                     EON
                 """), SpriteKind.user)
-    EON.set_position(88, 90)
+    EON.set_position(88, 40)
     animation.run_image_animation(EON, lookLeft, 200, True)
     EON.set_bounce_on_wall(True)
     EON.set_stay_in_screen(True)
@@ -59,6 +59,7 @@ def sceneTwo():
     """))
     game.show_long_text("Serà EON capaç de retonar la claredat en aquest món? 'Echo' i 'Quietus' ho evitaran a tota costa!",
         DialogLayout.BOTTOM)
+    isLevelSelector = True
     levelSelector()
 def sceneOne():
     scene.set_background_image(assets.image("""
@@ -67,6 +68,29 @@ def sceneOne():
     game.show_long_text("Després de la victoria a The Land Of The Forgotten, EON pren camí en una nova aventura, un regne on els germans del silenci 'Echo' i 'Quietus' tenen el control total, The Domain Of Silence",
         DialogLayout.BOTTOM)
     sceneTwo()
+def FirstLevel():
+    global EON
+    EON.ay = 300
+    EON.set_bounce_on_wall(False)
+    controller.move_sprite(EON, 100, 0)
+    scene.camera_follow_sprite(EON)
+    scene.set_background_image(assets.image("""
+                SceneOne
+    """))
+    tiles.set_current_tilemap(tilemap("""
+        Level1
+    """))
+    tiles.place_on_tile(EON, tiles.get_tile_location(0, 11))
+    def on_b_pressed():
+        if EON.is_hitting_tile(CollisionDirection.BOTTOM):
+            EON.vy = -150
+    controller.B.on_event(ControllerButtonEvent.PRESSED, on_b_pressed)
+
+    def on_up_pressed():
+        if EON.is_hitting_tile(CollisionDirection.BOTTOM):
+            EON.vy = -150
+    controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
+
 EON: Sprite = None
 RecPlay: Sprite = None
 LevelOne:Sprite = None
@@ -88,9 +112,12 @@ lookLeft = assets.animation("""
 
 def on_on_update():
     if controller.left.is_pressed():
-        animation.run_image_animation(EON, lookLeft, 200, True)
+        currentAnimation = "Left"
+        animation.run_image_animation(EON, lookLeft, 200, True) 
     elif controller.right.is_pressed():
+        currentAnimation = "Right"
         animation.run_image_animation(EON, lookRight, 200, True)
+                
 game.on_update(on_on_update)
 
 def on_on_overlap(sprite, otherSprite):
@@ -99,6 +126,8 @@ def on_on_overlap(sprite, otherSprite):
         EON.say_text("Level One", 100, False)
         if controller.A.is_pressed():
             effects.clear_particles(otherSprite)
+            isLevelSelector = False
+            FirstLevel()
     elif otherSprite == LevelTwo:
         EON.say_text("Level Two", 100, False)
         if controller.A.is_pressed():

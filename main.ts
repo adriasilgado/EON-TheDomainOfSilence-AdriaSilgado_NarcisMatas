@@ -56,7 +56,7 @@ function levelSelector() {
     EON = sprites.create(assets.image`
                     EON
                 `, SpriteKind.user)
-    EON.setPosition(88, 90)
+    EON.setPosition(88, 40)
     animation.runImageAnimation(EON, lookLeft, 200, true)
     EON.setBounceOnWall(true)
     EON.setStayInScreen(true)
@@ -68,6 +68,7 @@ function sceneTwo() {
         SceneTwo
     `)
     game.showLongText("Serà EON capaç de retonar la claredat en aquest món? 'Echo' i 'Quietus' ho evitaran a tota costa!", DialogLayout.Bottom)
+    let isLevelSelector = true
     levelSelector()
 }
 
@@ -77,6 +78,33 @@ function sceneOne() {
     `)
     game.showLongText("Després de la victoria a The Land Of The Forgotten, EON pren camí en una nova aventura, un regne on els germans del silenci 'Echo' i 'Quietus' tenen el control total, The Domain Of Silence", DialogLayout.Bottom)
     sceneTwo()
+}
+
+function FirstLevel() {
+    
+    EON.ay = 300
+    EON.setBounceOnWall(false)
+    controller.moveSprite(EON, 100, 0)
+    scene.cameraFollowSprite(EON)
+    scene.setBackgroundImage(assets.image`
+                SceneOne
+    `)
+    tiles.setCurrentTilemap(tilemap`
+        Level1
+    `)
+    tiles.placeOnTile(EON, tiles.getTileLocation(0, 11))
+    controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
+        if (EON.isHittingTile(CollisionDirection.Bottom)) {
+            EON.vy = -150
+        }
+        
+    })
+    controller.up.onEvent(ControllerButtonEvent.Pressed, function on_up_pressed() {
+        if (EON.isHittingTile(CollisionDirection.Bottom)) {
+            EON.vy = -150
+        }
+        
+    })
 }
 
 let EON : Sprite = null
@@ -98,19 +126,25 @@ lookLeft = assets.animation`
     LookingLeft
 `
 game.onUpdate(function on_on_update() {
+    let currentAnimation: string;
     if (controller.left.isPressed()) {
+        currentAnimation = "Left"
         animation.runImageAnimation(EON, lookLeft, 200, true)
     } else if (controller.right.isPressed()) {
+        currentAnimation = "Right"
         animation.runImageAnimation(EON, lookRight, 200, true)
     }
     
 })
 sprites.onOverlap(SpriteKind.user, SpriteKind.option, function on_on_overlap(sprite: Sprite, otherSprite: Sprite) {
+    let isLevelSelector: boolean;
     otherSprite.startEffect(effects.bubbles, 21)
     if (otherSprite == LevelOne) {
         EON.sayText("Level One", 100, false)
         if (controller.A.isPressed()) {
             effects.clearParticles(otherSprite)
+            isLevelSelector = false
+            FirstLevel()
         }
         
     } else if (otherSprite == LevelTwo) {
