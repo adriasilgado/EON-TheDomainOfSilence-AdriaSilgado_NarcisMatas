@@ -5,6 +5,7 @@ class SpriteKind:
 levelsPass = [True, False, False]
 def play():
     global RecPlay
+    info.set_score(0)
     RecPlay = sprites.create(assets.image("""
         blink
     """), SpriteKind.option)
@@ -48,7 +49,7 @@ def levelSelector():
     EON = sprites.create(assets.image("""
                     EON
                 """), SpriteKind.user)
-    EON.set_position(88, 40)
+    EON.set_position(95, 55)
     animation.run_image_animation(EON, lookLeft, 200, True)
     EON.set_bounce_on_wall(True)
     EON.set_stay_in_screen(True)
@@ -59,7 +60,6 @@ def sceneTwo():
     """))
     game.show_long_text("Serà EON capaç de retonar la claredat en aquest món? 'Echo' i 'Quietus' ho evitaran a tota costa!",
         DialogLayout.BOTTOM)
-    isLevelSelector = True
     levelSelector()
 def sceneOne():
     scene.set_background_image(assets.image("""
@@ -69,7 +69,12 @@ def sceneOne():
         DialogLayout.BOTTOM)
     sceneTwo()
 def FirstLevel():
-    global EON
+    global EON, Soul, LevelTwoBlock, LevelThreeBlock
+    Soul = sprites.create(assets.image("""
+            SoulStatic
+        """), SpriteKind.option)
+    Soul.set_position(80, 160)
+    animation.run_image_animation(Soul, soulMovement, 200, True)
     EON.ay = 300
     EON.set_bounce_on_wall(False)
     controller.move_sprite(EON, 100, 0)
@@ -81,6 +86,9 @@ def FirstLevel():
         Level1
     """))
     tiles.place_on_tile(EON, tiles.get_tile_location(0, 11))
+    LevelTwoBlock.destroy()
+    LevelThreeBlock.destroy()
+    
     def on_b_pressed():
         if EON.is_hitting_tile(CollisionDirection.BOTTOM):
             EON.vy = -150
@@ -98,6 +106,7 @@ LevelTwo:Sprite = None
 LevelThree:Sprite = None
 LevelTwoBlock:Sprite = None
 LevelThreeBlock:Sprite = None
+Soul:Sprite = None
 lookLeft: List[Image] = []
 scene.set_background_image(assets.image("""
     myImage
@@ -109,8 +118,11 @@ lookRight = assets.animation("""
 lookLeft = assets.animation("""
     LookingLeft
 """)
+soulMovement = assets.animation("""
+    Soul
+""")
 
-def on_on_update():
+def on_on_update(): 
     if controller.left.is_pressed():
         currentAnimation = "Left"
         animation.run_image_animation(EON, lookLeft, 200, True) 
@@ -125,19 +137,24 @@ def on_on_overlap(sprite, otherSprite):
     if otherSprite == LevelOne:
         EON.say_text("Level One", 100, False)
         if controller.A.is_pressed():
+            otherSprite.destroy()
             effects.clear_particles(otherSprite)
-            isLevelSelector = False
             FirstLevel()
     elif otherSprite == LevelTwo:
         EON.say_text("Level Two", 100, False)
         if controller.A.is_pressed():
+            otherSprite.destroy()
             effects.clear_particles(otherSprite)
     elif otherSprite == LevelThree:
         EON.say_text("Level Three", 100, False)
         if controller.A.is_pressed():
+            otherSprite.destroy()
             effects.clear_particles(otherSprite)
     elif otherSprite == LevelTwoBlock or otherSprite == LevelThreeBlock:
         EON.say_text("Has de passar-te l'anterior nivell!", 100, False)
         if controller.A.is_pressed():
             effects.clear_particles(otherSprite)
+    elif otherSprite == Soul:
+        otherSprite.destroy()
+        info.change_score_by(1)
 sprites.on_overlap(SpriteKind.user, SpriteKind.option, on_on_overlap)

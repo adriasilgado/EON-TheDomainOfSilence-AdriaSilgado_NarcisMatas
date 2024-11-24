@@ -733,6 +733,25 @@ f c f c 3 3 3 3 3 f c c c f .
 . b b b b b b b b b b b b b b . 
 . . . . . . . . . . . . . . . . 
 `;
+            case "image11":
+            case "SoulStatic":return img`
+. . . . . . . . 
+. . . . . . . . 
+. . . . . . . . 
+. . . . . . . . 
+. . . . . . . . 
+. . . . . . . . 
+. . . . f . . . 
+. . . f 8 f . . 
+. . f 8 8 f . . 
+. f 8 8 9 8 f . 
+. f 8 9 9 9 8 f 
+f 8 9 9 1 9 9 f 
+f 9 9 9 1 9 9 f 
+f 9 9 1 1 1 9 f 
+. f 1 1 1 1 f . 
+. . f f f f . . 
+`;
         }
         return null;
     })
@@ -1439,7 +1458,7 @@ f c f c 3 3 3 3 3 f c c c f .
 . . . . . f c c c c c f . . . 
 . . . . . . f f f f f . . . . 
 `];
-            case "myAnim":
+            case "Soul":
             case "anim9":return [img`
 . . . . . . . . 
 . . . . . . . . 

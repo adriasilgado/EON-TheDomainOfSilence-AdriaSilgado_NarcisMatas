@@ -6,6 +6,7 @@ namespace SpriteKind {
 let levelsPass = [true, false, false]
 function play() {
     
+    info.setScore(0)
     RecPlay = sprites.create(assets.image`
         blink
     `, SpriteKind.option)
@@ -56,7 +57,7 @@ function levelSelector() {
     EON = sprites.create(assets.image`
                     EON
                 `, SpriteKind.user)
-    EON.setPosition(88, 40)
+    EON.setPosition(95, 55)
     animation.runImageAnimation(EON, lookLeft, 200, true)
     EON.setBounceOnWall(true)
     EON.setStayInScreen(true)
@@ -68,7 +69,6 @@ function sceneTwo() {
         SceneTwo
     `)
     game.showLongText("Serà EON capaç de retonar la claredat en aquest món? 'Echo' i 'Quietus' ho evitaran a tota costa!", DialogLayout.Bottom)
-    let isLevelSelector = true
     levelSelector()
 }
 
@@ -82,6 +82,11 @@ function sceneOne() {
 
 function FirstLevel() {
     
+    Soul = sprites.create(assets.image`
+            SoulStatic
+        `, SpriteKind.option)
+    Soul.setPosition(80, 160)
+    animation.runImageAnimation(Soul, soulMovement, 200, true)
     EON.ay = 300
     EON.setBounceOnWall(false)
     controller.moveSprite(EON, 100, 0)
@@ -93,6 +98,8 @@ function FirstLevel() {
         Level1
     `)
     tiles.placeOnTile(EON, tiles.getTileLocation(0, 11))
+    LevelTwoBlock.destroy()
+    LevelThreeBlock.destroy()
     controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
         if (EON.isHittingTile(CollisionDirection.Bottom)) {
             EON.vy = -150
@@ -114,6 +121,7 @@ let LevelTwo : Sprite = null
 let LevelThree : Sprite = null
 let LevelTwoBlock : Sprite = null
 let LevelThreeBlock : Sprite = null
+let Soul : Sprite = null
 let lookLeft : Image[] = []
 scene.setBackgroundImage(assets.image`
     myImage
@@ -124,6 +132,9 @@ let lookRight = assets.animation`
 `
 lookLeft = assets.animation`
     LookingLeft
+`
+let soulMovement = assets.animation`
+    Soul
 `
 game.onUpdate(function on_on_update() {
     let currentAnimation: string;
@@ -137,25 +148,26 @@ game.onUpdate(function on_on_update() {
     
 })
 sprites.onOverlap(SpriteKind.user, SpriteKind.option, function on_on_overlap(sprite: Sprite, otherSprite: Sprite) {
-    let isLevelSelector: boolean;
     otherSprite.startEffect(effects.bubbles, 21)
     if (otherSprite == LevelOne) {
         EON.sayText("Level One", 100, false)
         if (controller.A.isPressed()) {
+            otherSprite.destroy()
             effects.clearParticles(otherSprite)
-            isLevelSelector = false
             FirstLevel()
         }
         
     } else if (otherSprite == LevelTwo) {
         EON.sayText("Level Two", 100, false)
         if (controller.A.isPressed()) {
+            otherSprite.destroy()
             effects.clearParticles(otherSprite)
         }
         
     } else if (otherSprite == LevelThree) {
         EON.sayText("Level Three", 100, false)
         if (controller.A.isPressed()) {
+            otherSprite.destroy()
             effects.clearParticles(otherSprite)
         }
         
@@ -165,6 +177,9 @@ sprites.onOverlap(SpriteKind.user, SpriteKind.option, function on_on_overlap(spr
             effects.clearParticles(otherSprite)
         }
         
+    } else if (otherSprite == Soul) {
+        otherSprite.destroy()
+        info.changeScoreBy(1)
     }
     
 })
