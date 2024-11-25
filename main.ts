@@ -6,7 +6,6 @@ namespace SpriteKind {
 let levelsPass = [true, false, false]
 function play() {
     
-    info.setScore(0)
     RecPlay = sprites.create(assets.image`
         blink
     `, SpriteKind.option)
@@ -82,6 +81,7 @@ function sceneOne() {
 
 function FirstLevel() {
     
+    update_score()
     Soul = sprites.create(assets.image`
             SoulStatic
         `, SpriteKind.option)
@@ -114,6 +114,30 @@ function FirstLevel() {
     })
 }
 
+function update_score() {
+    
+    if (score_label === null) {
+        score_label = textsprite.create("0", 3, 6)
+        score_label.setFlag(SpriteFlag.RelativeToCamera, true)
+        score_sprite = sprites.create(assets.image`
+                    SoulStatic
+            `, SpriteKind.option)
+        score_sprite.setFlag(SpriteFlag.RelativeToCamera, true)
+        center_score()
+    } else {
+        score_label.setText("" + score)
+        center_score()
+    }
+    
+}
+
+function center_score() {
+    let total_width = score_sprite.width + 5 + score_label.width
+    let center_x = Math.idiv(screen.width, 2) - Math.idiv(total_width, 2)
+    score_sprite.setPosition(center_x, 8)
+    score_label.setPosition(center_x + score_sprite.width + 5, 11)
+}
+
 let EON : Sprite = null
 let RecPlay : Sprite = null
 let LevelOne : Sprite = null
@@ -123,6 +147,9 @@ let LevelTwoBlock : Sprite = null
 let LevelThreeBlock : Sprite = null
 let Soul : Sprite = null
 let lookLeft : Image[] = []
+let score = 0
+let score_label : TextSprite = null
+let score_sprite : Sprite = null
 scene.setBackgroundImage(assets.image`
     myImage
 `)
@@ -148,6 +175,7 @@ game.onUpdate(function on_on_update() {
     
 })
 sprites.onOverlap(SpriteKind.user, SpriteKind.option, function on_on_overlap(sprite: Sprite, otherSprite: Sprite) {
+    
     otherSprite.startEffect(effects.bubbles, 21)
     if (otherSprite == LevelOne) {
         EON.sayText("Level One", 100, false)
@@ -179,7 +207,8 @@ sprites.onOverlap(SpriteKind.user, SpriteKind.option, function on_on_overlap(spr
         
     } else if (otherSprite == Soul) {
         otherSprite.destroy()
-        info.changeScoreBy(1)
+        score += 1
+        update_score()
     }
     
 })

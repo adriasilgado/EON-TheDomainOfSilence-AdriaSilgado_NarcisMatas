@@ -5,7 +5,6 @@ class SpriteKind:
 levelsPass = [True, False, False]
 def play():
     global RecPlay
-    info.set_score(0)
     RecPlay = sprites.create(assets.image("""
         blink
     """), SpriteKind.option)
@@ -70,6 +69,7 @@ def sceneOne():
     sceneTwo()
 def FirstLevel():
     global EON, Soul, LevelTwoBlock, LevelThreeBlock
+    update_score()
     Soul = sprites.create(assets.image("""
             SoulStatic
         """), SpriteKind.option)
@@ -99,6 +99,27 @@ def FirstLevel():
             EON.vy = -150
     controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
 
+def update_score():
+    global score_label, score_sprite
+    if score_label is None:
+        score_label = textsprite.create("0", 3, 6)
+        score_label.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
+        
+        score_sprite = sprites.create(assets.image("""
+                    SoulStatic
+            """), SpriteKind.option)
+        score_sprite.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
+        
+        center_score()
+    else:
+        score_label.set_text(str(score))
+        center_score()
+def center_score():
+    total_width = score_sprite.width + 5 + score_label.width
+    center_x = (screen.width // 2) - (total_width // 2)
+    
+    score_sprite.set_position(center_x, 8)
+    score_label.set_position(center_x + score_sprite.width + 5, 11)
 EON: Sprite = None
 RecPlay: Sprite = None
 LevelOne:Sprite = None
@@ -108,6 +129,9 @@ LevelTwoBlock:Sprite = None
 LevelThreeBlock:Sprite = None
 Soul:Sprite = None
 lookLeft: List[Image] = []
+score = 0
+score_label:TextSprite = None
+score_sprite:Sprite = None
 scene.set_background_image(assets.image("""
     myImage
 """))
@@ -133,6 +157,7 @@ def on_on_update():
 game.on_update(on_on_update)
 
 def on_on_overlap(sprite, otherSprite):
+    global score
     otherSprite.start_effect(effects.bubbles, 21)
     if otherSprite == LevelOne:
         EON.say_text("Level One", 100, False)
@@ -156,5 +181,6 @@ def on_on_overlap(sprite, otherSprite):
             effects.clear_particles(otherSprite)
     elif otherSprite == Soul:
         otherSprite.destroy()
-        info.change_score_by(1)
+        score += 1
+        update_score()
 sprites.on_overlap(SpriteKind.user, SpriteKind.option, on_on_overlap)
