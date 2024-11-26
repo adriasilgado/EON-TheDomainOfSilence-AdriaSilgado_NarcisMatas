@@ -1,6 +1,7 @@
 namespace SpriteKind {
-    export const option = SpriteKind.create()
-    export const user = SpriteKind.create()
+    export const level = SpriteKind.create()
+    export const EON = SpriteKind.create()
+    export const soul = SpriteKind.create()
 }
 
 let levelsPass = [true, false, false]
@@ -8,7 +9,7 @@ function play() {
     
     RecPlay = sprites.create(assets.image`
         blink
-    `, SpriteKind.option)
+    `)
     RecPlay.setPosition(99, 76)
     while (!controller.A.isPressed()) {
         RecPlay.setFlag(SpriteFlag.Invisible, true)
@@ -27,35 +28,35 @@ function levelSelector() {
         `)
     LevelOne = sprites.create(assets.image`
                 LevelOne
-            `, SpriteKind.option)
+            `, SpriteKind.level)
     LevelOne.setPosition(88, 90)
     if (levelsPass[1]) {
         LevelTwo = sprites.create(assets.image`
                 LevelTwo
-            `, SpriteKind.option)
+            `, SpriteKind.level)
         LevelTwo.setPosition(40, 65)
     } else {
         LevelTwoBlock = sprites.create(assets.image`
                         LevelBlock
-                    `, SpriteKind.option)
+                    `, SpriteKind.level)
         LevelTwoBlock.setPosition(40, 65)
     }
     
     if (levelsPass[2]) {
         LevelThree = sprites.create(assets.image`
                         LevelThree
-                    `, SpriteKind.option)
+                    `, SpriteKind.level)
         LevelThree.setPosition(73, 35)
     } else {
         LevelThreeBlock = sprites.create(assets.image`
                         LevelBlock
-                    `, SpriteKind.option)
+                    `, SpriteKind.level)
         LevelThreeBlock.setPosition(73, 35)
     }
     
     EON = sprites.create(assets.image`
                     EON
-                `, SpriteKind.user)
+                `, SpriteKind.EON)
     EON.setPosition(95, 55)
     animation.runImageAnimation(EON, lookLeft, 200, true)
     EON.setBounceOnWall(true)
@@ -84,7 +85,7 @@ function FirstLevel() {
     update_score()
     Soul = sprites.create(assets.image`
             SoulStatic
-        `, SpriteKind.option)
+        `, SpriteKind.soul)
     Soul.setPosition(80, 160)
     animation.runImageAnimation(Soul, soulMovement, 200, true)
     EON.ay = 300
@@ -121,7 +122,7 @@ function update_score() {
         score_label.setFlag(SpriteFlag.RelativeToCamera, true)
         score_sprite = sprites.create(assets.image`
                     SoulStatic
-            `, SpriteKind.option)
+            `)
         score_sprite.setFlag(SpriteFlag.RelativeToCamera, true)
         center_score()
     } else {
@@ -174,8 +175,7 @@ game.onUpdate(function on_on_update() {
     }
     
 })
-sprites.onOverlap(SpriteKind.user, SpriteKind.option, function on_on_overlap(sprite: Sprite, otherSprite: Sprite) {
-    
+sprites.onOverlap(SpriteKind.EON, SpriteKind.level, function on_on_overlap(sprite: Sprite, otherSprite: Sprite) {
     otherSprite.startEffect(effects.bubbles, 21)
     if (otherSprite == LevelOne) {
         EON.sayText("Level One", 100, false)
@@ -205,8 +205,13 @@ sprites.onOverlap(SpriteKind.user, SpriteKind.option, function on_on_overlap(spr
             effects.clearParticles(otherSprite)
         }
         
-    } else if (otherSprite == Soul) {
-        otherSprite.destroy()
+    }
+    
+})
+sprites.onOverlap(SpriteKind.EON, SpriteKind.soul, function on_on_overlap2(sprite2: Sprite, otherSprite2: Sprite) {
+    
+    if (otherSprite2 == Soul) {
+        otherSprite2.destroy()
         score += 1
         update_score()
     }

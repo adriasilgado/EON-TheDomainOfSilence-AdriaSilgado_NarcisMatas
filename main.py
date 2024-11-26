@@ -1,13 +1,14 @@
 @namespace
 class SpriteKind:
-    option = SpriteKind.create()
-    user = SpriteKind.create()
+    level = SpriteKind.create()
+    EON = SpriteKind.create()
+    soul = SpriteKind.create()
 levelsPass = [True, False, False]
 def play():
     global RecPlay
     RecPlay = sprites.create(assets.image("""
         blink
-    """), SpriteKind.option)
+    """))
     RecPlay.set_position(99, 76)
     while not (controller.A.is_pressed()):
         RecPlay.set_flag(SpriteFlag.INVISIBLE, True)
@@ -23,31 +24,31 @@ def levelSelector():
         """))
     LevelOne = sprites.create(assets.image("""
                 LevelOne
-            """), SpriteKind.option)
+            """), SpriteKind.level)
     LevelOne.set_position(88, 90)
     if levelsPass[1]:
         LevelTwo = sprites.create(assets.image("""
                 LevelTwo
-            """), SpriteKind.option)
+            """), SpriteKind.level)
         LevelTwo.set_position(40, 65)
     else:
         LevelTwoBlock = sprites.create(assets.image("""
                         LevelBlock
-                    """), SpriteKind.option)
+                    """), SpriteKind.level)
         LevelTwoBlock.set_position(40, 65)
     if levelsPass[2]:
         LevelThree = sprites.create(assets.image("""
                         LevelThree
-                    """), SpriteKind.option)
+                    """), SpriteKind.level)
         LevelThree.set_position(73, 35)
     else:
         LevelThreeBlock = sprites.create(assets.image("""
                         LevelBlock
-                    """), SpriteKind.option)
+                    """), SpriteKind.level)
         LevelThreeBlock.set_position(73, 35)
     EON = sprites.create(assets.image("""
                     EON
-                """), SpriteKind.user)
+                """), SpriteKind.EON)
     EON.set_position(95, 55)
     animation.run_image_animation(EON, lookLeft, 200, True)
     EON.set_bounce_on_wall(True)
@@ -72,7 +73,7 @@ def FirstLevel():
     update_score()
     Soul = sprites.create(assets.image("""
             SoulStatic
-        """), SpriteKind.option)
+        """), SpriteKind.soul)
     Soul.set_position(80, 160)
     animation.run_image_animation(Soul, soulMovement, 200, True)
     EON.ay = 300
@@ -107,7 +108,7 @@ def update_score():
         
         score_sprite = sprites.create(assets.image("""
                     SoulStatic
-            """), SpriteKind.option)
+            """))
         score_sprite.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
         
         center_score()
@@ -146,10 +147,10 @@ soulMovement = assets.animation("""
     Soul
 """)
 
-def on_on_update(): 
+def on_on_update():
     if controller.left.is_pressed():
         currentAnimation = "Left"
-        animation.run_image_animation(EON, lookLeft, 200, True) 
+        animation.run_image_animation(EON, lookLeft, 200, True)
     elif controller.right.is_pressed():
         currentAnimation = "Right"
         animation.run_image_animation(EON, lookRight, 200, True)
@@ -157,7 +158,6 @@ def on_on_update():
 game.on_update(on_on_update)
 
 def on_on_overlap(sprite, otherSprite):
-    global score
     otherSprite.start_effect(effects.bubbles, 21)
     if otherSprite == LevelOne:
         EON.say_text("Level One", 100, False)
@@ -179,8 +179,12 @@ def on_on_overlap(sprite, otherSprite):
         EON.say_text("Has de passar-te l'anterior nivell!", 100, False)
         if controller.A.is_pressed():
             effects.clear_particles(otherSprite)
-    elif otherSprite == Soul:
-        otherSprite.destroy()
+sprites.on_overlap(SpriteKind.EON, SpriteKind.level, on_on_overlap)
+
+def on_on_overlap2(sprite2, otherSprite2):
+    global score
+    if otherSprite2 == Soul:
+        otherSprite2.destroy()
         score += 1
         update_score()
-sprites.on_overlap(SpriteKind.user, SpriteKind.option, on_on_overlap)
+sprites.on_overlap(SpriteKind.EON, SpriteKind.soul, on_on_overlap2)
