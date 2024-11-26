@@ -752,6 +752,36 @@ f 9 9 1 1 1 9 f
 . f 1 1 1 1 f . 
 . . f f f f . . 
 `;
+            case "image12":
+            case "DoubleJump":return img`
+. . f f f f . . 
+. f e e e e f . 
+. f 9 e e 9 f . 
+. . f 9 9 f . . 
+. . f 9 9 f . . 
+. . f 9 9 f . . 
+. f 9 9 9 9 f . 
+f 9 a a a a 9 f 
+f c c c c c c f 
+f c c c c c c f 
+. f c c c c f . 
+. . f f f f . . 
+`;
+            case "image13":
+            case "MaxStrenght":return img`
+. . f f f f . . 
+. f e e e e f . 
+. f 9 e e 9 f . 
+. . f 9 9 f . . 
+. . f 9 9 f . . 
+. . f 9 9 f . . 
+. f 9 9 9 9 f . 
+f 9 4 4 4 4 9 f 
+f 2 2 2 2 2 2 f 
+f 2 2 2 2 2 2 f 
+. f 2 2 2 2 f . 
+. . f f f f . . 
+`;
         }
         return null;
     })

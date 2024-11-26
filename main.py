@@ -3,6 +3,8 @@ class SpriteKind:
     level = SpriteKind.create()
     EON = SpriteKind.create()
     soul = SpriteKind.create()
+    powerup = SpriteKind.create()
+    enemy = SpriteKind.create()
 levelsPass = [True, False, False]
 def play():
     global RecPlay
@@ -69,13 +71,23 @@ def sceneOne():
         DialogLayout.BOTTOM)
     sceneTwo()
 def FirstLevel():
-    global EON, Soul, LevelTwoBlock, LevelThreeBlock
+    global EON, Soul, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght
     update_score()
     Soul = sprites.create(assets.image("""
             SoulStatic
         """), SpriteKind.soul)
+    DoubleJump = sprites.create(assets.image("""
+            DoubleJump
+        """), SpriteKind.powerup)
+    MaxStrenght = sprites.create(assets.image("""
+            MaxStrenght
+        """), SpriteKind.powerup)
     Soul.set_position(80, 160)
+    DoubleJump.set_position(100, 150)
+    MaxStrenght.set_position(140, 150)
     animation.run_image_animation(Soul, soulMovement, 200, True)
+    animation.run_image_animation(DoubleJump, jumpMovement, 200, True)
+    animation.run_image_animation(MaxStrenght, strenghtMovement, 200, True)
     EON.ay = 300
     EON.set_bounce_on_wall(False)
     controller.move_sprite(EON, 100, 0)
@@ -121,6 +133,29 @@ def center_score():
     
     score_sprite.set_position(center_x, 8)
     score_label.set_position(center_x + score_sprite.width + 5, 11)
+
+def update_DJ():
+    global DJ_label, DJ_time
+    if DJ_label is None:
+        DJ_label = textsprite.create("0", 3, 6)
+        DJ_label.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)        
+    else:
+        if DJ_time == 0:
+            DJ_label.set_text("")
+        else:
+            DJ_label.set_text(str(DJ_time))
+def update_MS():
+    global MS_label, MS_time
+    if MS_label is None:
+        MS_label = textsprite.create("0", 3, 6)
+        MS_label.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
+    else:
+        if MS_time == 0:
+            MS_label.set_text("")
+            MS_label.set_position(30, 20)
+        else:
+            MS_label.set_text(str(MS_time))
+            MS_label.set_position(30, 20)
 EON: Sprite = None
 RecPlay: Sprite = None
 LevelOne:Sprite = None
@@ -129,10 +164,18 @@ LevelThree:Sprite = None
 LevelTwoBlock:Sprite = None
 LevelThreeBlock:Sprite = None
 Soul:Sprite = None
+DoubleJump:Sprite = None
+MaxStrenght:Sprite = None
 lookLeft: List[Image] = []
 score = 0
 score_label:TextSprite = None
 score_sprite:Sprite = None
+DJ_time = 5
+DJ_label:TextSprite = None
+countdown_active_DJ = False
+MS_time = 5
+MS_label:TextSprite = None
+countdown_active_MS = False
 scene.set_background_image(assets.image("""
     myImage
 """))
@@ -146,6 +189,12 @@ lookLeft = assets.animation("""
 soulMovement = assets.animation("""
     Soul
 """)
+jumpMovement = assets.animation("""
+    PotionJump
+""")
+strenghtMovement = assets.animation("""
+    PotionStrength
+""")
 
 def on_on_update():
     if controller.left.is_pressed():
@@ -154,7 +203,6 @@ def on_on_update():
     elif controller.right.is_pressed():
         currentAnimation = "Right"
         animation.run_image_animation(EON, lookRight, 200, True)
-                
 game.on_update(on_on_update)
 
 def on_on_overlap(sprite, otherSprite):
@@ -188,3 +236,42 @@ def on_on_overlap2(sprite2, otherSprite2):
         score += 1
         update_score()
 sprites.on_overlap(SpriteKind.EON, SpriteKind.soul, on_on_overlap2)
+
+def on_on_overlap3(sprite3, otherSprite3):
+    global DJ_time, MS_time, countdown_active_DJ, countdown_active_MS
+    if otherSprite3 == DoubleJump:
+        otherSprite3.destroy()
+        DJ_time = 5
+        countdown_active_DJ = True
+    elif otherSprite3 == MaxStrenght:
+        otherSprite3.destroy()
+        MS_time = 5
+        countdown_active_MS = True
+sprites.on_overlap(SpriteKind.EON, SpriteKind.powerup, on_on_overlap3)
+
+def update_timer_DJ():
+    global DJ_time, countdown_active_DJ
+    print(DJ_time)
+    if countdown_active_DJ:
+        if DJ_time > 0:
+            DJ_time -= 1
+            update_DJ()
+        if DJ_time == 0:
+            game.splash("¡Tiempo terminado!")
+            update_DJ()
+            countdown_active_DJ = False
+            DJ_time = -1 
+game.on_update_interval(1000, update_timer_DJ)
+
+def update_timer_MS():
+    global MS_time, countdown_active_MS
+    if countdown_active_MS:
+        if MS_time > 0:
+            MS_time -= 1
+            update_MS()
+        if MS_time == 0:
+            game.splash("¡Tiempo terminado!")
+            update_MS()
+            countdown_active_MS = False
+            MS_time = -1
+game.on_update_interval(1000, update_timer_MS)

@@ -59,6 +59,16 @@
         "mimeType": "image/x-mkcd-f4",
         "displayName": "SoulStatic"
     },
+    "image12": {
+        "data": "hwQIAAwAAAAAAADw/wAAAPAPAJ/MDwAA7/n/qcz8AADvnpmpzPwAAO+emanM/AAA7/n/qcz8AADwDwCfzA8AAAAAAPD/AAAA",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "DoubleJump"
+    },
+    "image13": {
+        "data": "hwQIAAwAAAAAAADw/wAAAPAPAJ8iDwAA7/n/SSLyAADvnplJIvIAAO+emUki8gAA7/n/SSLyAADwDwCfIg8AAAAAAPD/AAAA",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "MaxStrenght"
+    },
     "anim1": {
         "namespace": "myAnimations",
         "id": "anim1",

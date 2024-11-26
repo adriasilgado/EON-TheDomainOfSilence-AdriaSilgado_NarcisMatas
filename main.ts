@@ -2,6 +2,8 @@ namespace SpriteKind {
     export const level = SpriteKind.create()
     export const EON = SpriteKind.create()
     export const soul = SpriteKind.create()
+    export const powerup = SpriteKind.create()
+    export const enemy = SpriteKind.create()
 }
 
 let levelsPass = [true, false, false]
@@ -86,8 +88,18 @@ function FirstLevel() {
     Soul = sprites.create(assets.image`
             SoulStatic
         `, SpriteKind.soul)
+    DoubleJump = sprites.create(assets.image`
+            DoubleJump
+        `, SpriteKind.powerup)
+    MaxStrenght = sprites.create(assets.image`
+            MaxStrenght
+        `, SpriteKind.powerup)
     Soul.setPosition(80, 160)
+    DoubleJump.setPosition(100, 150)
+    MaxStrenght.setPosition(140, 150)
     animation.runImageAnimation(Soul, soulMovement, 200, true)
+    animation.runImageAnimation(DoubleJump, jumpMovement, 200, true)
+    animation.runImageAnimation(MaxStrenght, strenghtMovement, 200, true)
     EON.ay = 300
     EON.setBounceOnWall(false)
     controller.moveSprite(EON, 100, 0)
@@ -139,6 +151,34 @@ function center_score() {
     score_label.setPosition(center_x + score_sprite.width + 5, 11)
 }
 
+function update_DJ() {
+    
+    if (DJ_label === null) {
+        DJ_label = textsprite.create("0", 3, 6)
+        DJ_label.setFlag(SpriteFlag.RelativeToCamera, true)
+    } else if (DJ_time == 0) {
+        DJ_label.setText("")
+    } else {
+        DJ_label.setText("" + DJ_time)
+    }
+    
+}
+
+function update_MS() {
+    
+    if (MS_label === null) {
+        MS_label = textsprite.create("0", 3, 6)
+        MS_label.setFlag(SpriteFlag.RelativeToCamera, true)
+    } else if (MS_time == 0) {
+        MS_label.setText("")
+        MS_label.setPosition(30, 20)
+    } else {
+        MS_label.setText("" + MS_time)
+        MS_label.setPosition(30, 20)
+    }
+    
+}
+
 let EON : Sprite = null
 let RecPlay : Sprite = null
 let LevelOne : Sprite = null
@@ -147,10 +187,18 @@ let LevelThree : Sprite = null
 let LevelTwoBlock : Sprite = null
 let LevelThreeBlock : Sprite = null
 let Soul : Sprite = null
+let DoubleJump : Sprite = null
+let MaxStrenght : Sprite = null
 let lookLeft : Image[] = []
 let score = 0
 let score_label : TextSprite = null
 let score_sprite : Sprite = null
+let DJ_time = 5
+let DJ_label : TextSprite = null
+let countdown_active_DJ = false
+let MS_time = 5
+let MS_label : TextSprite = null
+let countdown_active_MS = false
 scene.setBackgroundImage(assets.image`
     myImage
 `)
@@ -163,6 +211,12 @@ lookLeft = assets.animation`
 `
 let soulMovement = assets.animation`
     Soul
+`
+let jumpMovement = assets.animation`
+    PotionJump
+`
+let strenghtMovement = assets.animation`
+    PotionStrength
 `
 game.onUpdate(function on_on_update() {
     let currentAnimation: string;
@@ -214,6 +268,56 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.soul, function on_on_overlap2(sprit
         otherSprite2.destroy()
         score += 1
         update_score()
+    }
+    
+})
+sprites.onOverlap(SpriteKind.EON, SpriteKind.powerup, function on_on_overlap3(sprite3: Sprite, otherSprite3: Sprite) {
+    
+    if (otherSprite3 == DoubleJump) {
+        otherSprite3.destroy()
+        DJ_time = 5
+        countdown_active_DJ = true
+    } else if (otherSprite3 == MaxStrenght) {
+        otherSprite3.destroy()
+        MS_time = 5
+        countdown_active_MS = true
+    }
+    
+})
+game.onUpdateInterval(1000, function update_timer_DJ() {
+    
+    console.log(DJ_time)
+    if (countdown_active_DJ) {
+        if (DJ_time > 0) {
+            DJ_time -= 1
+            update_DJ()
+        }
+        
+        if (DJ_time == 0) {
+            game.splash("¡Tiempo terminado!")
+            update_DJ()
+            countdown_active_DJ = false
+            DJ_time = -1
+        }
+        
+    }
+    
+})
+game.onUpdateInterval(1000, function update_timer_MS() {
+    
+    if (countdown_active_MS) {
+        if (MS_time > 0) {
+            MS_time -= 1
+            update_MS()
+        }
+        
+        if (MS_time == 0) {
+            game.splash("¡Tiempo terminado!")
+            update_MS()
+            countdown_active_MS = false
+            MS_time = -1
+        }
+        
     }
     
 })
