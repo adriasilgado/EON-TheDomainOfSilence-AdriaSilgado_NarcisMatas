@@ -91,14 +91,19 @@ function FirstLevel() {
     DoubleJump = sprites.create(assets.image`
             DoubleJump
         `, SpriteKind.powerup)
+    DoubleJump2 = sprites.create(assets.image`
+                DoubleJump
+            `, SpriteKind.powerup)
     MaxStrenght = sprites.create(assets.image`
             MaxStrenght
         `, SpriteKind.powerup)
     Soul.setPosition(80, 160)
     DoubleJump.setPosition(100, 150)
+    DoubleJump2.setPosition(60, 120)
     MaxStrenght.setPosition(140, 150)
     animation.runImageAnimation(Soul, soulMovement, 200, true)
     animation.runImageAnimation(DoubleJump, jumpMovement, 200, true)
+    animation.runImageAnimation(DoubleJump2, jumpMovement, 200, true)
     animation.runImageAnimation(MaxStrenght, strenghtMovement, 200, true)
     EON.ay = 300
     EON.setBounceOnWall(false)
@@ -151,34 +156,6 @@ function center_score() {
     score_label.setPosition(center_x + score_sprite.width + 5, 11)
 }
 
-function update_DJ() {
-    
-    if (DJ_label === null) {
-        DJ_label = textsprite.create("0", 3, 6)
-        DJ_label.setFlag(SpriteFlag.RelativeToCamera, true)
-    } else if (DJ_time == 0) {
-        DJ_label.setText("")
-    } else {
-        DJ_label.setText("" + DJ_time)
-    }
-    
-}
-
-function update_MS() {
-    
-    if (MS_label === null) {
-        MS_label = textsprite.create("0", 3, 6)
-        MS_label.setFlag(SpriteFlag.RelativeToCamera, true)
-    } else if (MS_time == 0) {
-        MS_label.setText("")
-        MS_label.setPosition(30, 20)
-    } else {
-        MS_label.setText("" + MS_time)
-        MS_label.setPosition(30, 20)
-    }
-    
-}
-
 let EON : Sprite = null
 let RecPlay : Sprite = null
 let LevelOne : Sprite = null
@@ -188,16 +165,17 @@ let LevelTwoBlock : Sprite = null
 let LevelThreeBlock : Sprite = null
 let Soul : Sprite = null
 let DoubleJump : Sprite = null
+let DoubleJump2 : Sprite = null
 let MaxStrenght : Sprite = null
 let lookLeft : Image[] = []
 let score = 0
 let score_label : TextSprite = null
 let score_sprite : Sprite = null
 let DJ_time = 5
-let DJ_label : TextSprite = null
+let DJ_label : Sprite = null
 let countdown_active_DJ = false
 let MS_time = 5
-let MS_label : TextSprite = null
+let MS_label : Sprite = null
 let countdown_active_MS = false
 scene.setBackgroundImage(assets.image`
     myImage
@@ -217,6 +195,12 @@ let jumpMovement = assets.animation`
 `
 let strenghtMovement = assets.animation`
     PotionStrength
+`
+let DJBarMovement = assets.animation`
+    BarraFX1
+`
+let MSBarMovement = assets.animation`
+    BarraFX2
 `
 game.onUpdate(function on_on_update() {
     let currentAnimation: string;
@@ -273,29 +257,40 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.soul, function on_on_overlap2(sprit
 })
 sprites.onOverlap(SpriteKind.EON, SpriteKind.powerup, function on_on_overlap3(sprite3: Sprite, otherSprite3: Sprite) {
     
-    if (otherSprite3 == DoubleJump) {
+    if (otherSprite3 == DoubleJump || otherSprite3 == DoubleJump2) {
         otherSprite3.destroy()
+        DJ_label = sprites.create(assets.image`
+                                            DJBar
+                    `)
+        DJ_label.setPosition(30, 20)
+        DJ_label.setFlag(SpriteFlag.RelativeToCamera, true)
         DJ_time = 5
+        animation.runImageAnimation(DJ_label, DJBarMovement, 1000, true)
         countdown_active_DJ = true
     } else if (otherSprite3 == MaxStrenght) {
         otherSprite3.destroy()
+        MS_label = sprites.create(assets.image`
+                MSBar
+                `)
+        MS_label.setPosition(30, 10)
+        MS_label.setFlag(SpriteFlag.RelativeToCamera, true)
         MS_time = 5
+        animation.runImageAnimation(MS_label, MSBarMovement, 1000, true)
         countdown_active_MS = true
     }
     
 })
 game.onUpdateInterval(1000, function update_timer_DJ() {
     
-    console.log(DJ_time)
+    console.log("Salto: " + DJ_time)
     if (countdown_active_DJ) {
         if (DJ_time > 0) {
             DJ_time -= 1
-            update_DJ()
         }
         
         if (DJ_time == 0) {
-            game.splash("¡Tiempo terminado!")
-            update_DJ()
+            // game.splash("¡Tiempo terminado!")
+            DJ_label.destroy()
             countdown_active_DJ = false
             DJ_time = -1
         }
@@ -305,15 +300,15 @@ game.onUpdateInterval(1000, function update_timer_DJ() {
 })
 game.onUpdateInterval(1000, function update_timer_MS() {
     
+    console.log("Fuerza: " + MS_time)
     if (countdown_active_MS) {
         if (MS_time > 0) {
             MS_time -= 1
-            update_MS()
         }
         
         if (MS_time == 0) {
-            game.splash("¡Tiempo terminado!")
-            update_MS()
+            // game.splash("¡Tiempo terminado!")
+            MS_label.destroy()
             countdown_active_MS = false
             MS_time = -1
         }

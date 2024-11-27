@@ -74,6 +74,16 @@
         "mimeType": "image/x-mkcd-f4",
         "displayName": "myImage0"
     },
+    "image15": {
+        "data": "hwRAAAQAAADwDwAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AACv/AAAr/wAAK/8AADwDwAA",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "DJBar"
+    },
+    "image16": {
+        "data": "hwRAAAQAAADwDwAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAABP8gAAT/IAAE/yAADwDwAA",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "MSBar"
+    },
     "anim1": {
         "namespace": "myAnimations",
         "id": "anim1",
