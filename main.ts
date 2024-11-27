@@ -119,14 +119,23 @@ function FirstLevel() {
     LevelTwoBlock.destroy()
     LevelThreeBlock.destroy()
     controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
+        
         if (EON.isHittingTile(CollisionDirection.Bottom)) {
             EON.vy = -150
+            canDoubleJump = true
+        } else if (canDoubleJump && isDoubleJump) {
+            EON.vy = -150
+            canDoubleJump = false
         }
         
     })
     controller.up.onEvent(ControllerButtonEvent.Pressed, function on_up_pressed() {
+        
         if (EON.isHittingTile(CollisionDirection.Bottom)) {
             EON.vy = -150
+        } else if (canDoubleJump && isDoubleJump) {
+            EON.vy = -150
+            canDoubleJump = false
         }
         
     })
@@ -174,6 +183,8 @@ let score_sprite : Sprite = null
 let DJ_time = 5
 let DJ_label : Sprite = null
 let countdown_active_DJ = false
+let isDoubleJump = false
+let canDoubleJump = false
 let MS_time = 5
 let MS_label : Sprite = null
 let countdown_active_MS = false
@@ -266,6 +277,7 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.powerup, function on_on_overlap3(sp
         DJ_label.setFlag(SpriteFlag.RelativeToCamera, true)
         DJ_time = 5
         animation.runImageAnimation(DJ_label, DJBarMovement, 1000, true)
+        isDoubleJump = true
         countdown_active_DJ = true
     } else if (otherSprite3 == MaxStrenght) {
         otherSprite3.destroy()
@@ -292,6 +304,7 @@ game.onUpdateInterval(1000, function update_timer_DJ() {
             // game.splash("¡Tiempo terminado!")
             DJ_label.destroy()
             countdown_active_DJ = false
+            isDoubleJump = false
             DJ_time = -1
         }
         

@@ -71,7 +71,7 @@ def sceneOne():
         DialogLayout.BOTTOM)
     sceneTwo()
 def FirstLevel():
-    global EON, Soul, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, DoubleJump2
+    global EON, Soul, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, DoubleJump2, isDoubleJump
     update_score()
     Soul = sprites.create(assets.image("""
             SoulStatic
@@ -108,13 +108,22 @@ def FirstLevel():
     LevelThreeBlock.destroy()
     
     def on_b_pressed():
+        global canDoubleJump, isDoubleJump
         if EON.is_hitting_tile(CollisionDirection.BOTTOM):
             EON.vy = -150
+            canDoubleJump = True
+        elif canDoubleJump and isDoubleJump:
+            EON.vy = -150
+            canDoubleJump = False
     controller.B.on_event(ControllerButtonEvent.PRESSED, on_b_pressed)
 
     def on_up_pressed():
+        global canDoubleJump, isDoubleJump
         if EON.is_hitting_tile(CollisionDirection.BOTTOM):
             EON.vy = -150
+        elif canDoubleJump and isDoubleJump:
+            EON.vy = -150
+            canDoubleJump = False
     controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
 
 def update_score():
@@ -156,6 +165,8 @@ score_sprite:Sprite = None
 DJ_time = 5
 DJ_label:Sprite = None
 countdown_active_DJ = False
+isDoubleJump = False
+canDoubleJump = False
 MS_time = 5
 MS_label:Sprite = None
 countdown_active_MS = False
@@ -228,7 +239,7 @@ def on_on_overlap2(sprite2, otherSprite2):
 sprites.on_overlap(SpriteKind.EON, SpriteKind.soul, on_on_overlap2)
 
 def on_on_overlap3(sprite3, otherSprite3):
-    global DJ_time, MS_time, countdown_active_DJ, countdown_active_MS, DJ_label, MS_label
+    global DJ_time, MS_time, countdown_active_DJ, countdown_active_MS, DJ_label, MS_label, isDoubleJump
     if otherSprite3 == DoubleJump or otherSprite3 == DoubleJump2:
         otherSprite3.destroy()
         DJ_label = sprites.create(assets.image("""
@@ -238,6 +249,7 @@ def on_on_overlap3(sprite3, otherSprite3):
         DJ_label.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
         DJ_time = 5
         animation.run_image_animation(DJ_label, DJBarMovement, 1000, True)
+        isDoubleJump = True
         countdown_active_DJ = True
     elif otherSprite3 == MaxStrenght:
         otherSprite3.destroy()
@@ -252,7 +264,7 @@ def on_on_overlap3(sprite3, otherSprite3):
 sprites.on_overlap(SpriteKind.EON, SpriteKind.powerup, on_on_overlap3)
 
 def update_timer_DJ():
-    global DJ_time, countdown_active_DJ, DJ_label
+    global DJ_time, countdown_active_DJ, DJ_label, isDoubleJump
     print("Salto: " + DJ_time)
     if countdown_active_DJ:
         if DJ_time > 0:
@@ -261,6 +273,7 @@ def update_timer_DJ():
             #game.splash("¡Tiempo terminado!")
             DJ_label.destroy()
             countdown_active_DJ = False
+            isDoubleJump = False
             DJ_time = -1 
 game.on_update_interval(1000, update_timer_DJ)
 
