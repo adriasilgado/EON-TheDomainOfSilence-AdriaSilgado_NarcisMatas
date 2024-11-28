@@ -5,6 +5,7 @@ class SpriteKind:
     soul = SpriteKind.create()
     powerup = SpriteKind.create()
     enemy = SpriteKind.create()
+    projectile = SpriteKind.create()
 levelsPass = [True, False, False]
 def play():
     global RecPlay
@@ -106,6 +107,7 @@ def FirstLevel():
     tiles.place_on_tile(EON, tiles.get_tile_location(0, 11))
     LevelTwoBlock.destroy()
     LevelThreeBlock.destroy()
+    create_enemy()
     
     def on_b_pressed():
         global canDoubleJump, isDoubleJump
@@ -129,7 +131,7 @@ def FirstLevel():
 def update_score():
     global score_label, score_sprite
     if score_label is None:
-        score_label = textsprite.create("0", 3, 6)
+        score_label = textsprite.create("0", 3, 6) # el 3 (fondo) y el 6(fuente) cambian colores
         score_label.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
         
         score_sprite = sprites.create(assets.image("""
@@ -147,6 +149,62 @@ def center_score():
     
     score_sprite.set_position(center_x, 8)
     score_label.set_position(center_x + score_sprite.width + 5, 11)
+
+def create_enemy():
+    global Mago, is_attacking, patrol_direction, last_shot_time
+    is_attacking = False
+    patrol_direction = -1
+    last_shot_time = game.runtime()  # 1 para la derecha, -1 para la izquierda
+
+    # Crear el enemigo
+    Mago = sprites.create(assets.image("""
+        Mago
+    """), SpriteKind.enemy)
+    Mago.set_position(260, 180)
+
+    # Configurar el comportamiento del enemigo
+    def patrol():
+        global patrol_direction
+        if not is_attacking:  # Solo patrulla si no está atacando
+            Mago.vx = patrol_direction * 50  # Velocidad de patrullaje
+            print("Patrolling, vx: " + Mago.vx)
+            if tiles.tile_at_location_equals(Mago.tilemap_location(), assets.tile("""
+                            PatrolStopMago
+                        """)):
+                patrol_direction *= -1  # Cambiar dirección
+                Mago.vx = patrol_direction * 50
+                
+
+    def detect_player():
+        global is_attacking
+        distance_to_player = Math.abs(Mago.x - EON.x)  # Distancia horizontal
+        if distance_to_player < 80:  # Detecta al jugador si está cerca
+            is_attacking = True
+            attack_player()
+        else:
+            is_attacking = False  # Vuelve al modo patrulla si el jugador se aleja
+
+    def attack_player():
+        global last_shot_time
+        if is_attacking:
+            Mago.vx = 0  # Detener el movimiento
+            current_time = game.runtime()  # Tiempo actual del juego
+            if current_time - last_shot_time > 1000:  # Dispara cada 1 segundo
+                # Crear un proyectil
+                projectile = sprites.create_projectile_from_sprite(
+                    assets.image("""
+                        Bola
+                    """),  # Imagen del proyectil
+                    Mago,  # El enemigo dispara
+                    (EON.x - Mago.x) / abs(EON.x - Mago.x) * 100,  # Velocidad en X dirigida al jugador
+                    0  # Velocidad en Y (horizontal)
+                )
+                projectile.set_kind(SpriteKind.projectile)
+                last_shot_time = current_time
+    # Comportamiento continuo
+    game.on_update(patrol)
+    game.on_update(detect_player)
+
 EON: Sprite = None
 RecPlay: Sprite = None
 LevelOne:Sprite = None
@@ -170,6 +228,10 @@ canDoubleJump = False
 MS_time = 5
 MS_label:Sprite = None
 countdown_active_MS = False
+Mago:Sprite = None
+is_attacking = False
+patrol_direction = 1
+last_shot_time = 0
 
 scene.set_background_image(assets.image("""
     myImage
