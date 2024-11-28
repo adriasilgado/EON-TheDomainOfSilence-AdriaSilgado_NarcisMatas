@@ -782,13 +782,6 @@ f 2 2 2 2 2 2 f
 . f 2 2 2 2 f . 
 . . f f f f . . 
 `;
-            case "image14":
-            case "myImage0":return img`
-. f f . 
-f a a f 
-f a a f 
-. f f . 
-`;
             case "image15":
             case "DJBar":return img`
 . f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f . 
@@ -802,6 +795,32 @@ f c c c c c c c c c c c c c c c c c c c c c c c c c c c c c c c c c c c c c c c 
 f 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 f 
 f 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 f 
 . f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f . 
+`;
+            case "image17":
+            case "Mago":return img`
+. . . . . . . . . . . . . . . . 
+. f f f . . . . f f f . . . . . 
+f d d d f . . f a a a f . . . . 
+f f d f f . f a c a c a f . . . 
+f d f d f . f c f c a a a f . . 
+f e d e f . f 1 f 1 a c a a f . 
+. f e f . . f f f f a f c a f . 
+. f e f . . f c f c a a f c a f 
+. f e f . f a a c a a a a f f . 
+. f e f f d c c a a c c a f . . 
+. f e f d f f c a c c d a f . . 
+. f e f f . . f c d d d a f . . 
+. f e f . . . f c c a c a f . . 
+. f e f . . . f c c c a c f . . 
+. f e f . . . . f c c c a f . . 
+. f e f . . . . . f c c c a f . 
+`;
+            case "image14":
+            case "Bola":return img`
+. f f . 
+f a a f 
+f a a f 
+. f f . 
 `;
         }
         return null;
@@ -2452,6 +2471,194 @@ f 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 . . . . . . . . . . . . . . . . . . . . . . . . 
 f . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . f 
 f . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . f 
 . f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f f . 
+`];
+            case "KnightWalkRight":
+            case "anim20":return [img`
+. . . . f . f f f . f . . . . . 
+. . . f 9 f 9 9 9 f 9 f . . . . 
+. . . f 6 9 6 6 6 9 6 f . f . . 
+. . . f 6 6 6 6 6 6 f . f 1 f . 
+. . . . f 6 d 9 d 9 f . f 9 f . 
+. . . . f d d d d d f . f 9 f . 
+. . . . f d d 3 3 d f . f 9 f . 
+. . . f f f f d d d 4 f f 9 f . 
+. . f 9 9 9 9 f 4 4 d 4 f 9 f . 
+. . f 9 9 9 9 f 2 2 d d 5 5 5 f 
+. . f 9 6 6 9 f 2 2 4 4 f e f . 
+. . f 6 6 6 6 f 2 2 4 4 f e f . 
+. . f 6 6 6 6 f 8 8 4 4 f e f . 
+. . . f 6 6 f f 8 8 4 f . f . . 
+. . . . f f e f e e f . . . . . 
+. . . . f e e e f e e f . . . . 
+`, img`
+. . . . f . f f f . f . . . . . 
+. . . f 9 f 9 9 9 f 9 f . f . . 
+. . . f 6 9 6 6 6 9 6 f f 1 f . 
+. . . f 6 6 6 6 6 6 f . f 9 f . 
+. . . . f 6 d 9 d 9 f . f 9 f . 
+. . . . f d d d d d f . f 9 f . 
+. . . f f f f 3 3 d f . f 9 f . 
+. . f 9 9 9 9 f d d 4 f f 9 f . 
+. . f 9 9 9 9 f 4 4 d d 5 5 5 f 
+. . f 9 6 6 9 f 2 2 d 4 f e f . 
+. . f 6 6 6 6 f 2 2 4 4 f e f . 
+. . f 6 6 6 6 f 2 2 4 4 f e f . 
+. . . f 6 6 f f 8 8 4 f . f . . 
+. . . . f f 8 f f 8 4 f . . . . 
+. . . f e e f . . f e e f . . . 
+. . . f e e e f . f e e e f . . 
+`, img`
+. . . . f . f f f . f . . . . . 
+. . . f 9 f 9 9 9 f 9 f . . . . 
+. . . f 6 9 6 6 6 9 6 f . f . . 
+. . . f 6 6 6 6 6 6 f . f 1 f . 
+. . . . f 6 d 9 d 9 f . f 9 f . 
+. . . . f d d d d d f . f 9 f . 
+. . . . f d d 3 3 d f . f 9 f . 
+. . . f f f f d d d 4 f f 9 f . 
+. . f 9 9 9 9 f 4 4 d 4 f 9 f . 
+. . f 9 9 9 9 f 2 2 d d 5 5 5 f 
+. . f 9 6 6 9 f 2 2 4 4 f e f . 
+. . f 6 6 6 6 f 2 2 4 4 f e f . 
+. . f 6 6 6 6 f 8 8 4 4 f e f . 
+. . . f 6 6 f f 8 8 4 f . f . . 
+. . . . f f e f e e f . . . . . 
+. . . . f e e e f e e f . . . . 
+`, img`
+. . . . f . f f f . f . . . . . 
+. . . f 9 f 9 9 9 f 9 f . f . . 
+. . . f 6 9 6 6 6 9 6 f f 1 f . 
+. . . f 6 6 6 6 6 6 f . f 9 f . 
+. . . . f 6 d 9 d 9 f . f 9 f . 
+. . . . f d d d d d f . f 9 f . 
+. . . f f f f 3 3 d f . f 9 f . 
+. . f 9 9 9 9 f d d 4 f f 9 f . 
+. . f 9 9 9 9 f 4 4 d d 5 5 5 f 
+. . f 9 6 6 9 f 2 2 d 4 f e f . 
+. . f 6 6 6 6 f 2 2 4 4 f e f . 
+. . f 6 6 6 6 f 2 2 4 4 f e f . 
+. . . f 6 6 f 8 f 8 4 f . f . . 
+. . . . f f 8 8 f 8 4 f . . . . 
+. . . . . f f e e f f . . . . . 
+. . . . . f f e e e f . . . . . 
+`];
+            case "KnightWalkLeft":
+            case "anim21":return [img`
+. . . . . f . f f f . f . . . . 
+. . . . f 9 f 9 9 9 f 9 f . . . 
+. . f . f 6 9 6 6 6 9 6 f . . . 
+. f 1 f . f 6 6 6 6 6 6 f . . . 
+. f 9 f . f 9 d 9 d 6 f . . . . 
+. f 9 f . f d d d d d f . . . . 
+. f 9 f . f d 3 3 d d f . . . . 
+. f 9 f f 4 d d d f f f f . . . 
+. f 9 f 4 d 4 4 f 9 9 9 9 f . . 
+f 5 5 5 d d 2 2 f 9 9 9 9 f . . 
+. f e f 4 4 2 2 f 9 6 6 9 f . . 
+. f e f 4 4 2 2 f 6 6 6 6 f . . 
+. f e f 4 4 8 8 f 6 6 6 6 f . . 
+. . f . f 4 8 8 f f 6 6 f . . . 
+. . . . . f e e f e f f . . . . 
+. . . . f e e f e e e f . . . . 
+`, img`
+. . . . . f . f f f . f . . . . 
+. . f . f 9 f 9 9 9 f 9 f . . . 
+. f 1 f f 6 9 6 6 6 9 6 f . . . 
+. f 9 f . f 6 6 6 6 6 6 f . . . 
+. f 9 f . f 9 d 9 d 6 f . . . . 
+. f 9 f . f d d d d d f . . . . 
+. f 9 f . f d 3 3 f f f f . . . 
+. f 9 f f 4 d d f 9 9 9 9 f . . 
+f 5 5 5 d d 4 4 f 9 9 9 9 f . . 
+. f e f 4 d 2 2 f 9 6 6 9 f . . 
+. f e f 4 4 2 2 f 6 6 6 6 f . . 
+. f e f 4 4 2 2 f 6 6 6 6 f . . 
+. . f . f 4 8 8 f f 6 6 f . . . 
+. . . . f 4 8 f f 8 f f . . . . 
+. . . f e e f . . f e e f . . . 
+. . f e e e f . f e e e f . . . 
+`, img`
+. . . . . f . f f f . f . . . . 
+. . . . f 9 f 9 9 9 f 9 f . . . 
+. . f . f 6 9 6 6 6 9 6 f . . . 
+. f 1 f . f 6 6 6 6 6 6 f . . . 
+. f 9 f . f 9 d 9 d 6 f . . . . 
+. f 9 f . f d d d d d f . . . . 
+. f 9 f . f d 3 3 d d f . . . . 
+. f 9 f f 4 d d d f f f f . . . 
+. f 9 f 4 d 4 4 f 9 9 9 9 f . . 
+f 5 5 5 d d 2 2 f 9 9 9 9 f . . 
+. f e f 4 4 2 2 f 9 6 6 9 f . . 
+. f e f 4 4 2 2 f 6 6 6 6 f . . 
+. f e f 4 4 8 8 f 6 6 6 6 f . . 
+. . f . f 4 8 8 f f 6 6 f . . . 
+. . . . . f e e f e f f . . . . 
+. . . . f e e f e e e f . . . . 
+`, img`
+. . . . . f . f f f . f . . . . 
+. . f . f 9 f 9 9 9 f 9 f . . . 
+. f 1 f f 6 9 6 6 6 9 6 f . . . 
+. f 9 f . f 6 6 6 6 6 6 f . . . 
+. f 9 f . f 9 d 9 d 6 f . . . . 
+. f 9 f . f d d d d d f . . . . 
+. f 9 f . f d 3 3 f f f f . . . 
+. f 9 f f 4 d d f 9 9 9 9 f . . 
+f 5 5 5 d d 4 4 f 9 9 9 9 f . . 
+. f e f 4 d 2 2 f 9 6 6 9 f . . 
+. f e f 4 4 2 2 f 6 6 6 6 f . . 
+. f e f 4 4 2 2 f 6 6 6 6 f . . 
+. . f . f 4 8 f 8 f 6 6 f . . . 
+. . . . f 4 8 f 8 8 f f . . . . 
+. . . . . f f e e f f . . . . . 
+. . . . . f e e e f f . . . . . 
+`];
+            case "KnightIdleRight0":
+            case "anim22":return [img`
+......f.fff.f.......
+.....f9f999f9f......
+.....f6966696f.f....
+.....f666666f.f1f...
+......f6d9d9f.f9f...
+......fdddddf.f9f...
+......fdd33df.f9f...
+.....ffffddd4ff9f...
+....f9999f44d4f9f...
+....f9999f22dd555f..
+....f9669f2244fef...
+....f6666f2244fef...
+....f6666f8844fef...
+.....f66ff884f.f....
+......ffefeef.......
+......feeefeef......
+`, img`
+......f.fff.f..f....
+.....f9f999f9ff1f...
+.....f6966696ff9f...
+.....f666666f.f9f...
+......f6d9d9f.f9f...
+......fdddddf.f9f...
+......fdd33dfff9f...
+.....ffffddd4d555f..
+....f9999f44d4fef...
+....f9999f2244fef...
+....f9669f2244fef...
+....f6666f2244ff....
+....f6666f8844f.....
+.....f66ff884f......
+......ffefeef.......
+......feeefeef......
+`];
+            case "BolaAnimRight":
+            case "anim23":return [img`
+. f f . 
+f a a f 
+f c a f 
+. f f . 
+`, img`
+. f f . 
+f a a f 
+f a c f 
+. f f . 
 `];
         }
         return null;
