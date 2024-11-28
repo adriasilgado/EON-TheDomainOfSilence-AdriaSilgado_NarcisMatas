@@ -4,6 +4,7 @@ namespace SpriteKind {
     export const soul = SpriteKind.create()
     export const powerup = SpriteKind.create()
     export const enemy = SpriteKind.create()
+    export const projectile = SpriteKind.create()
 }
 
 let levelsPass = [true, false, false]
@@ -118,6 +119,7 @@ function FirstLevel() {
     tiles.placeOnTile(EON, tiles.getTileLocation(0, 11))
     LevelTwoBlock.destroy()
     LevelThreeBlock.destroy()
+    create_enemy()
     controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
         
         if (EON.isHittingTile(CollisionDirection.Bottom)) {
@@ -145,6 +147,7 @@ function update_score() {
     
     if (score_label === null) {
         score_label = textsprite.create("0", 3, 6)
+        //  el 3 (fondo) y el 6(fuente) cambian colores
         score_label.setFlag(SpriteFlag.RelativeToCamera, true)
         score_sprite = sprites.create(assets.image`
                     SoulStatic
@@ -163,6 +166,80 @@ function center_score() {
     let center_x = Math.idiv(screen.width, 2) - Math.idiv(total_width, 2)
     score_sprite.setPosition(center_x, 8)
     score_label.setPosition(center_x + score_sprite.width + 5, 11)
+}
+
+function create_enemy() {
+    
+    is_attacking = false
+    patrol_direction = -1
+    last_shot_time = game.runtime()
+    //  1 para la derecha, -1 para la izquierda
+    //  Crear el enemigo
+    Mago = sprites.create(assets.image`
+        Mago
+    `, SpriteKind.enemy)
+    Mago.setPosition(260, 180)
+    //  Configurar el comportamiento del enemigo
+    //  Vuelve al modo patrulla si el jugador se aleja
+    function attack_player() {
+        let current_time: number;
+        let projectile: Sprite;
+        
+        if (is_attacking) {
+            Mago.vx = 0
+            //  Detener el movimiento
+            current_time = game.runtime()
+            //  Tiempo actual del juego
+            if (current_time - last_shot_time > 1000) {
+                //  Dispara cada 1 segundo
+                //  Crear un proyectil
+                projectile = sprites.createProjectileFromSprite(assets.image`
+                        Bola
+                    `, Mago, (EON.x - Mago.x) / Math.abs(EON.x - Mago.x) * 100, 0)
+                //  Imagen del proyectil
+                //  El enemigo dispara
+                //  Velocidad en X dirigida al jugador
+                //  Velocidad en Y (horizontal)
+                projectile.setKind(SpriteKind.projectile)
+                last_shot_time = current_time
+            }
+            
+        }
+        
+    }
+    
+    //  Comportamiento continuo
+    game.onUpdate(function patrol() {
+        
+        if (!is_attacking) {
+            //  Solo patrulla si no está atacando
+            Mago.vx = patrol_direction * 50
+            //  Velocidad de patrullaje
+            console.log("Patrolling, vx: " + Mago.vx)
+            if (tiles.tileAtLocationEquals(Mago.tilemapLocation(), assets.tile`
+                            PatrolStopMago
+                        `)) {
+                patrol_direction *= -1
+                //  Cambiar dirección
+                Mago.vx = patrol_direction * 50
+            }
+            
+        }
+        
+    })
+    game.onUpdate(function detect_player() {
+        
+        let distance_to_player = Math.abs(Mago.x - EON.x)
+        //  Distancia horizontal
+        if (distance_to_player < 80) {
+            //  Detecta al jugador si está cerca
+            is_attacking = true
+            attack_player()
+        } else {
+            is_attacking = false
+        }
+        
+    })
 }
 
 let EON : Sprite = null
@@ -188,6 +265,10 @@ let canDoubleJump = false
 let MS_time = 5
 let MS_label : Sprite = null
 let countdown_active_MS = false
+let Mago : Sprite = null
+let is_attacking = false
+let patrol_direction = 1
+let last_shot_time = 0
 scene.setBackgroundImage(assets.image`
     myImage
 `)
