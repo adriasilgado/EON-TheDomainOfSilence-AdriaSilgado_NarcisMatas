@@ -264,12 +264,12 @@ function create_enemy() {
             if (EON.x - Mago.x < 0 && current_animation != "MageLeftAttack") {
                 //  Jugador a la izquierda
                 console.log("LeftAttack")
-                animation.runImageAnimation(Mago, MageLeftAttack, 200, true)
+                animation.runImageAnimation(Mago, MageLeftAttack, 250, true)
                 current_animation = "MageLeftAttack"
             } else if (EON.x - Mago.x > 0 && current_animation != "MageRightAttack") {
                 //  Jugador a la derecha
                 console.log("RightAttack")
-                animation.runImageAnimation(Mago, MageRightAttack, 200, true)
+                animation.runImageAnimation(Mago, MageRightAttack, 250, true)
                 current_animation = "MageRightAttack"
             }
             

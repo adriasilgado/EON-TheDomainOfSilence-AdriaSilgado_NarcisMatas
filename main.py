@@ -223,11 +223,11 @@ def create_enemy():
         if is_attacking:  # Solo anima si está atacando
             if (EON.x - Mago.x) < 0 and current_animation != "MageLeftAttack":  # Jugador a la izquierda
                 print("LeftAttack")
-                animation.run_image_animation(Mago, MageLeftAttack, 200, True)
+                animation.run_image_animation(Mago, MageLeftAttack, 250, True)
                 current_animation = "MageLeftAttack"
             elif (EON.x - Mago.x) > 0 and current_animation != "MageRightAttack":  # Jugador a la derecha
                 print("RightAttack")
-                animation.run_image_animation(Mago, MageRightAttack, 200, True)
+                animation.run_image_animation(Mago, MageRightAttack, 250, True)
                 current_animation = "MageRightAttack"
     game.on_update(on_on_update3)
 
