@@ -240,6 +240,42 @@ function create_enemy() {
         }
         
     })
+    game.onUpdate(function on_on_update2() {
+        
+        if (!is_attacking) {
+            //  Solo anima en patrullaje si no está atacando
+            if (patrol_direction == -1 && current_animation != "MageLeft") {
+                console.log("LeftIdle")
+                animation.runImageAnimation(Mago, MageLeft, 1000, true)
+                current_animation = "MageLeft"
+            } else if (patrol_direction == 1 && current_animation != "MageRight") {
+                console.log("RightIdle")
+                animation.runImageAnimation(Mago, MageRight, 1000, true)
+                current_animation = "MageRight"
+            }
+            
+        }
+        
+    })
+    game.onUpdate(function on_on_update3() {
+        
+        if (is_attacking) {
+            //  Solo anima si está atacando
+            if (EON.x - Mago.x < 0 && current_animation != "MageLeftAttack") {
+                //  Jugador a la izquierda
+                console.log("LeftAttack")
+                animation.runImageAnimation(Mago, MageLeftAttack, 200, true)
+                current_animation = "MageLeftAttack"
+            } else if (EON.x - Mago.x > 0 && current_animation != "MageRightAttack") {
+                //  Jugador a la derecha
+                console.log("RightAttack")
+                animation.runImageAnimation(Mago, MageRightAttack, 200, true)
+                current_animation = "MageRightAttack"
+            }
+            
+        }
+        
+    })
 }
 
 let EON : Sprite = null
@@ -269,6 +305,7 @@ let Mago : Sprite = null
 let is_attacking = false
 let patrol_direction = 1
 let last_shot_time = 0
+let current_animation = ""
 scene.setBackgroundImage(assets.image`
     myImage
 `)
@@ -293,6 +330,18 @@ let DJBarMovement = assets.animation`
 `
 let MSBarMovement = assets.animation`
     BarraFX2
+`
+let MageRight = assets.animation`
+    MageIdleRight
+`
+let MageLeft = assets.animation`
+    MageIdleLeft
+`
+let MageRightAttack = assets.animation`
+    MageAttackRight
+`
+let MageLeftAttack = assets.animation`
+    MageAttackLeft
 `
 game.onUpdate(function on_on_update() {
     let currentAnimation: string;

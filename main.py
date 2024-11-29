@@ -205,6 +205,33 @@ def create_enemy():
     game.on_update(patrol)
     game.on_update(detect_player)
 
+    def on_on_update2():
+        global patrol_direction, is_attacking, current_animation
+        if not is_attacking:  # Solo anima en patrullaje si no está atacando
+            if patrol_direction == -1 and current_animation != "MageLeft":
+                print("LeftIdle")
+                animation.run_image_animation(Mago, MageLeft, 1000, True)
+                current_animation = "MageLeft"
+            elif patrol_direction == 1 and current_animation != "MageRight":
+                print("RightIdle")
+                animation.run_image_animation(Mago, MageRight, 1000, True)
+                current_animation = "MageRight"
+    game.on_update(on_on_update2)
+
+    def on_on_update3():
+        global patrol_direction, is_attacking, current_animation
+        if is_attacking:  # Solo anima si está atacando
+            if (EON.x - Mago.x) < 0 and current_animation != "MageLeftAttack":  # Jugador a la izquierda
+                print("LeftAttack")
+                animation.run_image_animation(Mago, MageLeftAttack, 200, True)
+                current_animation = "MageLeftAttack"
+            elif (EON.x - Mago.x) > 0 and current_animation != "MageRightAttack":  # Jugador a la derecha
+                print("RightAttack")
+                animation.run_image_animation(Mago, MageRightAttack, 200, True)
+                current_animation = "MageRightAttack"
+    game.on_update(on_on_update3)
+
+
 EON: Sprite = None
 RecPlay: Sprite = None
 LevelOne:Sprite = None
@@ -232,6 +259,7 @@ Mago:Sprite = None
 is_attacking = False
 patrol_direction = 1
 last_shot_time = 0
+current_animation = ""
 
 scene.set_background_image(assets.image("""
     myImage
@@ -257,6 +285,18 @@ DJBarMovement = assets.animation("""
 """)
 MSBarMovement = assets.animation("""
     BarraFX2
+""")
+MageRight = assets.animation("""
+    MageIdleRight
+""")
+MageLeft = assets.animation("""
+    MageIdleLeft
+""")
+MageRightAttack = assets.animation("""
+    MageAttackRight
+""")
+MageLeftAttack = assets.animation("""
+    MageAttackLeft
 """)
 
 def on_on_update():
