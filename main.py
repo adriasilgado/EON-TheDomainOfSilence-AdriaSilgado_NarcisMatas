@@ -434,4 +434,3 @@ def update_timer_MS():
             countdown_active_MS = False
             MS_time = -1
 game.on_update_interval(1000, update_timer_MS)
-
