@@ -6,6 +6,7 @@ class SpriteKind:
     powerup = SpriteKind.create()
     enemy = SpriteKind.create()
     projectile = SpriteKind.create()
+    UI = SpriteKind.create()
 levelsPass = [True, False, False]
 def play():
     global RecPlay
@@ -72,8 +73,10 @@ def sceneOne():
         DialogLayout.BOTTOM)
     sceneTwo()
 def FirstLevel():
-    global EON, Soul, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, DoubleJump2, isDoubleJump
+    global EON, Soul, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, DoubleJump2, isDoubleJump, isFirstLevel
+    isFirstLevel = True
     update_score()
+    create_hearts()
     Soul = sprites.create(assets.image("""
             SoulStatic
         """), SpriteKind.soul)
@@ -167,7 +170,6 @@ def create_enemy():
         global patrol_direction
         if not is_attacking:  # Solo patrulla si no está atacando
             Mago.vx = patrol_direction * 50  # Velocidad de patrullaje
-            print("Patrolling, vx: " + Mago.vx)
             if tiles.tile_at_location_equals(Mago.tilemap_location(), assets.tile("""
                             PatrolStopMago
                         """)):
@@ -185,11 +187,12 @@ def create_enemy():
             is_attacking = False  # Vuelve al modo patrulla si el jugador se aleja
 
     def attack_player():
-        global last_shot_time
+        global last_shot_time, current_animation
         if is_attacking:
             Mago.vx = 0  # Detener el movimiento
             current_time = game.runtime()  # Tiempo actual del juego
-            if current_time - last_shot_time > 1000:  # Dispara cada 1 segundo
+            print (current_animation)
+            if current_time - last_shot_time > 1000 and current_animation != "":  # Dispara cada 1 segundo
                 # Crear un proyectil
                 projectile = sprites.create_projectile_from_sprite(
                     assets.image("""
@@ -207,29 +210,68 @@ def create_enemy():
 
     def on_on_update2():
         global patrol_direction, is_attacking, current_animation
-        if not is_attacking:  # Solo anima en patrullaje si no está atacando
+        if not is_attacking and isFirstLevel:  # Solo anima en patrullaje si no está atacando
             if patrol_direction == -1 and current_animation != "MageLeft":
-                print("LeftIdle")
                 animation.run_image_animation(Mago, MageLeft, 1000, True)
                 current_animation = "MageLeft"
             elif patrol_direction == 1 and current_animation != "MageRight":
-                print("RightIdle")
                 animation.run_image_animation(Mago, MageRight, 1000, True)
                 current_animation = "MageRight"
     game.on_update(on_on_update2)
 
     def on_on_update3():
-        global patrol_direction, is_attacking, current_animation
-        if is_attacking:  # Solo anima si está atacando
+        global patrol_direction, is_attacking, current_animation, isFirstLevel
+        if is_attacking and isFirstLevel:  # Solo anima si está atacando
             if (EON.x - Mago.x) < 0 and current_animation != "MageLeftAttack":  # Jugador a la izquierda
-                print("LeftAttack")
                 animation.run_image_animation(Mago, MageLeftAttack, 250, True)
                 current_animation = "MageLeftAttack"
             elif (EON.x - Mago.x) > 0 and current_animation != "MageRightAttack":  # Jugador a la derecha
-                print("RightAttack")
                 animation.run_image_animation(Mago, MageRightAttack, 250, True)
                 current_animation = "MageRightAttack"
     game.on_update(on_on_update3)
+
+def create_hearts():
+    global hearts
+    for i in range(3):
+        heart = sprites.create(assets.image("""
+            Corazon
+        """), SpriteKind.UI)
+        heart.set_position(120 + i * 15, 10)
+        hearts.append(heart)
+        heart.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
+
+def lose_heart():
+    global heart_count, score, patrol_direction, last_shot_time, current_animation, heart_count, hearts, isFirstLevel
+    if heart_count > 0:
+        # Quitar un corazón visualmente
+        hearts[heart_count - 1].destroy()
+        heart_count -= 1
+        if heart_count == 0:
+            isFirstLevel = False
+            sprites.destroy_all_sprites_of_kind(SpriteKind.EON)
+            sprites.destroy_all_sprites_of_kind(SpriteKind.soul)
+            sprites.destroy_all_sprites_of_kind(SpriteKind.powerup)
+            sprites.destroy_all_sprites_of_kind(SpriteKind.enemy)
+            sprites.destroy_all_sprites_of_kind(SpriteKind.projectile)
+            sprites.destroy_all_sprites_of_kind(SpriteKind.UI)
+            score = 0
+            patrol_direction = 1
+            last_shot_time = 0
+            current_animation = ""
+            heart_count = 3
+            hearts = []
+            tiles.set_current_tilemap(tilemap("""
+                CleanLevel
+            """))
+            levelSelector()
+
+def check_collision_with_projectile():
+    global heart_count
+    for projectile in sprites.all_of_kind(SpriteKind.projectile):
+        if projectile.overlaps_with(EON):
+            projectile.destroy()  # Eliminar el proyectil
+            lose_heart()
+game.on_update(check_collision_with_projectile)
 
 
 EON: Sprite = None
@@ -260,6 +302,9 @@ is_attacking = False
 patrol_direction = 1
 last_shot_time = 0
 current_animation = ""
+heart_count = 3
+hearts: List[Sprite] = []
+isFirstLevel = False
 
 scene.set_background_image(assets.image("""
     myImage
@@ -367,7 +412,6 @@ sprites.on_overlap(SpriteKind.EON, SpriteKind.powerup, on_on_overlap3)
 
 def update_timer_DJ():
     global DJ_time, countdown_active_DJ, DJ_label, isDoubleJump
-    print("Salto: " + DJ_time)
     if countdown_active_DJ:
         if DJ_time > 0:
             DJ_time -= 1
@@ -381,7 +425,6 @@ game.on_update_interval(1000, update_timer_DJ)
 
 def update_timer_MS():
     global MS_time, countdown_active_MS, MS_label
-    print("Fuerza: " + MS_time)
     if countdown_active_MS:
         if MS_time > 0:
             MS_time -= 1
@@ -391,3 +434,4 @@ def update_timer_MS():
             countdown_active_MS = False
             MS_time = -1
 game.on_update_interval(1000, update_timer_MS)
+

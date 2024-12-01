@@ -5,6 +5,7 @@ namespace SpriteKind {
     export const powerup = SpriteKind.create()
     export const enemy = SpriteKind.create()
     export const projectile = SpriteKind.create()
+    export const UI = SpriteKind.create()
 }
 
 let levelsPass = [true, false, false]
@@ -85,7 +86,9 @@ function sceneOne() {
 
 function FirstLevel() {
     
+    isFirstLevel = true
     update_score()
+    create_hearts()
     Soul = sprites.create(assets.image`
             SoulStatic
         `, SpriteKind.soul)
@@ -190,7 +193,8 @@ function create_enemy() {
             //  Detener el movimiento
             current_time = game.runtime()
             //  Tiempo actual del juego
-            if (current_time - last_shot_time > 1000) {
+            console.log(current_animation)
+            if (current_time - last_shot_time > 1000 && current_animation != "") {
                 //  Dispara cada 1 segundo
                 //  Crear un proyectil
                 projectile = sprites.createProjectileFromSprite(assets.image`
@@ -215,7 +219,6 @@ function create_enemy() {
             //  Solo patrulla si no está atacando
             Mago.vx = patrol_direction * 50
             //  Velocidad de patrullaje
-            console.log("Patrolling, vx: " + Mago.vx)
             if (tiles.tileAtLocationEquals(Mago.tilemapLocation(), assets.tile`
                             PatrolStopMago
                         `)) {
@@ -242,14 +245,12 @@ function create_enemy() {
     })
     game.onUpdate(function on_on_update2() {
         
-        if (!is_attacking) {
+        if (!is_attacking && isFirstLevel) {
             //  Solo anima en patrullaje si no está atacando
             if (patrol_direction == -1 && current_animation != "MageLeft") {
-                console.log("LeftIdle")
                 animation.runImageAnimation(Mago, MageLeft, 1000, true)
                 current_animation = "MageLeft"
             } else if (patrol_direction == 1 && current_animation != "MageRight") {
-                console.log("RightIdle")
                 animation.runImageAnimation(Mago, MageRight, 1000, true)
                 current_animation = "MageRight"
             }
@@ -259,16 +260,14 @@ function create_enemy() {
     })
     game.onUpdate(function on_on_update3() {
         
-        if (is_attacking) {
+        if (is_attacking && isFirstLevel) {
             //  Solo anima si está atacando
             if (EON.x - Mago.x < 0 && current_animation != "MageLeftAttack") {
                 //  Jugador a la izquierda
-                console.log("LeftAttack")
                 animation.runImageAnimation(Mago, MageLeftAttack, 250, true)
                 current_animation = "MageLeftAttack"
             } else if (EON.x - Mago.x > 0 && current_animation != "MageRightAttack") {
                 //  Jugador a la derecha
-                console.log("RightAttack")
                 animation.runImageAnimation(Mago, MageRightAttack, 250, true)
                 current_animation = "MageRightAttack"
             }
@@ -278,6 +277,60 @@ function create_enemy() {
     })
 }
 
+function create_hearts() {
+    let heart: Sprite;
+    
+    for (let i = 0; i < 3; i++) {
+        heart = sprites.create(assets.image`
+            Corazon
+        `, SpriteKind.UI)
+        heart.setPosition(120 + i * 15, 10)
+        hearts.push(heart)
+        heart.setFlag(SpriteFlag.RelativeToCamera, true)
+    }
+}
+
+function lose_heart() {
+    
+    if (heart_count > 0) {
+        //  Quitar un corazón visualmente
+        hearts[heart_count - 1].destroy()
+        heart_count -= 1
+        if (heart_count == 0) {
+            isFirstLevel = false
+            sprites.destroyAllSpritesOfKind(SpriteKind.EON)
+            sprites.destroyAllSpritesOfKind(SpriteKind.soul)
+            sprites.destroyAllSpritesOfKind(SpriteKind.powerup)
+            sprites.destroyAllSpritesOfKind(SpriteKind.enemy)
+            sprites.destroyAllSpritesOfKind(SpriteKind.projectile)
+            sprites.destroyAllSpritesOfKind(SpriteKind.UI)
+            score = 0
+            patrol_direction = 1
+            last_shot_time = 0
+            current_animation = ""
+            heart_count = 3
+            hearts = []
+            tiles.setCurrentTilemap(tilemap`
+                CleanLevel
+            `)
+            levelSelector()
+        }
+        
+    }
+    
+}
+
+game.onUpdate(function check_collision_with_projectile() {
+    
+    for (let projectile of sprites.allOfKind(SpriteKind.projectile)) {
+        if (projectile.overlapsWith(EON)) {
+            projectile.destroy()
+            //  Eliminar el proyectil
+            lose_heart()
+        }
+        
+    }
+})
 let EON : Sprite = null
 let RecPlay : Sprite = null
 let LevelOne : Sprite = null
@@ -306,6 +359,9 @@ let is_attacking = false
 let patrol_direction = 1
 let last_shot_time = 0
 let current_animation = ""
+let heart_count = 3
+let hearts : Sprite[] = []
+let isFirstLevel = false
 scene.setBackgroundImage(assets.image`
     myImage
 `)
@@ -424,7 +480,6 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.powerup, function on_on_overlap3(sp
 })
 game.onUpdateInterval(1000, function update_timer_DJ() {
     
-    console.log("Salto: " + DJ_time)
     if (countdown_active_DJ) {
         if (DJ_time > 0) {
             DJ_time -= 1
@@ -443,7 +498,6 @@ game.onUpdateInterval(1000, function update_timer_DJ() {
 })
 game.onUpdateInterval(1000, function update_timer_MS() {
     
-    console.log("Fuerza: " + MS_time)
     if (countdown_active_MS) {
         if (MS_time > 0) {
             MS_time -= 1
