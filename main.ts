@@ -27,6 +27,10 @@ function play() {
 
 function levelSelector() {
     
+    tiles.setCurrentTilemap(tilemap`
+            CleanLevel
+        `)
+    scene.centerCameraAt(80, 60)
     scene.setBackgroundImage(assets.image`
             LevelSelector
         `)
