@@ -7,6 +7,7 @@ class SpriteKind:
     enemy = SpriteKind.create()
     projectile = SpriteKind.create()
     UI = SpriteKind.create()
+    portal = SpriteKind.create()
 levelsPass = [True, False, False]
 def play():
     global RecPlay
@@ -62,6 +63,7 @@ def levelSelector():
     animation.run_image_animation(EON, lookLeft, 200, True)
     EON.set_bounce_on_wall(True)
     EON.set_stay_in_screen(True)
+    EON.z = 100
     controller.move_sprite(EON)
 def sceneTwo():
     scene.set_background_image(assets.image("""
@@ -78,7 +80,7 @@ def sceneOne():
         DialogLayout.BOTTOM)
     sceneTwo()
 def FirstLevel():
-    global EON, Soul, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, DoubleJump2, isDoubleJump, isFirstLevel
+    global EON, Soul, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, DoubleJump2, isDoubleJump, isFirstLevel, Portal
     isFirstLevel = True
     update_score()
     create_hearts()
@@ -94,6 +96,11 @@ def FirstLevel():
     MaxStrenght = sprites.create(assets.image("""
             MaxStrenght
         """), SpriteKind.powerup)
+    Portal = sprites.create(assets.image("""
+                Portal
+            """), SpriteKind.portal)
+    Portal.z = 1
+    Portal.set_position(450, 140)
     Soul.set_position(80, 160)
     DoubleJump.set_position(100, 150)
     DoubleJump2.set_position(60, 120)
@@ -102,6 +109,7 @@ def FirstLevel():
     animation.run_image_animation(DoubleJump, jumpMovement, 200, True)
     animation.run_image_animation(DoubleJump2, jumpMovement, 200, True)
     animation.run_image_animation(MaxStrenght, strenghtMovement, 200, True)
+    animation.run_image_animation(Portal, PortalAnim, 200, True)
     EON.ay = 300
     EON.set_bounce_on_wall(False)
     controller.move_sprite(EON, 100, 0)
@@ -192,7 +200,7 @@ def create_enemy():
             is_attacking = False  # Vuelve al modo patrulla si el jugador se aleja
 
     def attack_player():
-        global last_shot_time, current_animation
+        global last_shot_time, current_animation, projectile
         if is_attacking:
             Mago.vx = 0  # Detener el movimiento
             current_time = game.runtime()  # Tiempo actual del juego
@@ -208,6 +216,10 @@ def create_enemy():
                     0  # Velocidad en Y (horizontal)
                 )
                 projectile.set_kind(SpriteKind.projectile)
+                if (EON.x - Mago.x) < 0:  # Jugador a la izquierda
+                    animation.run_image_animation(projectile, BallLeft, 250, True)
+                else:  # Jugador a la derecha
+                    animation.run_image_animation(projectile, BallRight, 250, True)
                 last_shot_time = current_time
     # Comportamiento continuo
     game.on_update(patrol)
@@ -247,30 +259,24 @@ def create_hearts():
         heart.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
 
 def lose_heart():
-    global heart_count, score, patrol_direction, last_shot_time, current_animation, heart_count, hearts, isFirstLevel, score_label
+    global heart_count 
     if heart_count > 0:
         # Quitar un corazón visualmente
         hearts[heart_count - 1].destroy()
         heart_count -= 1
+        is_taking_damage = True
+        damage_time = game.runtime()
+        print("Estado de daño activado inmediatamente")
+
+        # Configurar animación de daño dependiendo de la dirección actual
+        if currentAnimationEON == "Left":
+            animation.stop_animation(animation.AnimationTypes.ALL, EON)
+            animation.run_image_animation(EON, DamageLeft, 200, False)
+        elif currentAnimationEON == "Right":
+            animation.stop_animation(animation.AnimationTypes.ALL, EON)
+            animation.run_image_animation(EON, DamageRight, 200, False)
         if heart_count == 0:
-            isFirstLevel = False
-            sprites.destroy_all_sprites_of_kind(SpriteKind.EON)
-            sprites.destroy_all_sprites_of_kind(SpriteKind.soul)
-            sprites.destroy_all_sprites_of_kind(SpriteKind.powerup)
-            sprites.destroy_all_sprites_of_kind(SpriteKind.enemy)
-            sprites.destroy_all_sprites_of_kind(SpriteKind.projectile)
-            sprites.destroy_all_sprites_of_kind(SpriteKind.UI)
-            score_label.set_text("")
-            score = 0
-            patrol_direction = 1
-            last_shot_time = 0
-            current_animation = ""
-            heart_count = 3
-            hearts = []
-            tiles.set_current_tilemap(tilemap("""
-                CleanLevel
-            """))
-            levelSelector()
+            returnLevelSelector()
 
 def check_collision_with_projectile():
     global heart_count
@@ -280,6 +286,27 @@ def check_collision_with_projectile():
             lose_heart()
 game.on_update(check_collision_with_projectile)
 
+def returnLevelSelector():
+    global score, patrol_direction, last_shot_time, current_animation, heart_count, hearts, isFirstLevel, score_label, currentAnimationEON, damage_time, is_taking_damage
+    isFirstLevel = False
+    sprites.destroy_all_sprites_of_kind(SpriteKind.EON)
+    sprites.destroy_all_sprites_of_kind(SpriteKind.soul)
+    sprites.destroy_all_sprites_of_kind(SpriteKind.powerup)
+    sprites.destroy_all_sprites_of_kind(SpriteKind.enemy)
+    sprites.destroy_all_sprites_of_kind(SpriteKind.projectile)
+    sprites.destroy_all_sprites_of_kind(SpriteKind.UI)
+    score_label.set_text("")
+    score_label = None
+    score = 0
+    patrol_direction = 1
+    last_shot_time = 0
+    current_animation = ""
+    heart_count = 3
+    hearts = []
+    tiles.set_current_tilemap(tilemap("""
+        CleanLevel
+    """))
+    levelSelector()
 
 EON: Sprite = None
 RecPlay: Sprite = None
@@ -309,9 +336,14 @@ is_attacking = False
 patrol_direction = 1
 last_shot_time = 0
 current_animation = ""
+currentAnimationEON = ""
 heart_count = 3
 hearts: List[Sprite] = []
 isFirstLevel = False
+projectile:Sprite = None
+is_taking_damage = False
+damage_time = 0
+Portal:Sprite = None
 
 scene.set_background_image(assets.image("""
     myImage
@@ -322,6 +354,12 @@ lookRight = assets.animation("""
 """)
 lookLeft = assets.animation("""
     LookingLeft
+""")
+attackLeft = assets.animation("""
+    AttackingLeft
+""")
+attackRight = assets.animation("""
+    AttackingRight
 """)
 soulMovement = assets.animation("""
     Soul
@@ -350,13 +388,47 @@ MageRightAttack = assets.animation("""
 MageLeftAttack = assets.animation("""
     MageAttackLeft
 """)
+BallLeft = assets.animation("""
+    BolaAnimLeft
+""")
+BallRight = assets.animation("""
+    BolaAnimRight
+""")
+DamageRight = assets.animation("""
+    DamageRight
+""")
+DamageLeft = assets.animation("""
+    DamageLeft
+""")
+PortalAnim = assets.animation("""
+    PortalFinal
+""")
 
 def on_on_update():
+    global is_taking_damage, damage_time, currentAnimationEON, isFirstLevel
+    print(f"Update - Estado de daño: {is_taking_damage}")
+    if is_taking_damage:
+        # Calcular tiempo transcurrido desde el daño
+        elapsed_time = game.runtime() - damage_time
+        if elapsed_time < 500:  # Estado de daño dura 500 ms
+            return  # Evitar ejecutar otras animaciones
+        else:
+            # Terminar el estado de daño después de 500 ms
+            is_taking_damage = False
+            print("Estado de daño desactivado")
+
+    # Si no está en daño, manejar animaciones normales
+
+    if controller.A.is_pressed() and isFirstLevel:
+        if currentAnimationEON == "Left":
+            animation.run_image_animation(EON, attackLeft, 50, False)
+        elif currentAnimationEON == "Right":
+            animation.run_image_animation(EON, attackRight, 50, False)
     if controller.left.is_pressed():
-        currentAnimation = "Left"
+        currentAnimationEON = "Left"
         animation.run_image_animation(EON, lookLeft, 200, True)
     elif controller.right.is_pressed():
-        currentAnimation = "Right"
+        currentAnimationEON = "Right"
         animation.run_image_animation(EON, lookRight, 200, True)
 game.on_update(on_on_update)
 
@@ -416,6 +488,14 @@ def on_on_overlap3(sprite3, otherSprite3):
         animation.run_image_animation(MS_label, MSBarMovement, 1000, True)
         countdown_active_MS = True
 sprites.on_overlap(SpriteKind.EON, SpriteKind.powerup, on_on_overlap3)
+
+def on_on_overlap4(sprite4, otherSprite4):
+    global levelsPass
+    if otherSprite4 == Portal and controller.A.is_pressed():
+        levelsPass[1] = True
+        otherSprite4.destroy()
+        returnLevelSelector()
+sprites.on_overlap(SpriteKind.EON, SpriteKind.portal, on_on_overlap4)
 
 def update_timer_DJ():
     global DJ_time, countdown_active_DJ, DJ_label, isDoubleJump

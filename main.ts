@@ -6,6 +6,7 @@ namespace SpriteKind {
     export const enemy = SpriteKind.create()
     export const projectile = SpriteKind.create()
     export const UI = SpriteKind.create()
+    export const portal = SpriteKind.create()
 }
 
 let levelsPass = [true, false, false]
@@ -69,6 +70,7 @@ function levelSelector() {
     animation.runImageAnimation(EON, lookLeft, 200, true)
     EON.setBounceOnWall(true)
     EON.setStayInScreen(true)
+    EON.z = 100
     controller.moveSprite(EON)
 }
 
@@ -105,6 +107,11 @@ function FirstLevel() {
     MaxStrenght = sprites.create(assets.image`
             MaxStrenght
         `, SpriteKind.powerup)
+    Portal = sprites.create(assets.image`
+                Portal
+            `, SpriteKind.portal)
+    Portal.z = 1
+    Portal.setPosition(450, 140)
     Soul.setPosition(80, 160)
     DoubleJump.setPosition(100, 150)
     DoubleJump2.setPosition(60, 120)
@@ -113,6 +120,7 @@ function FirstLevel() {
     animation.runImageAnimation(DoubleJump, jumpMovement, 200, true)
     animation.runImageAnimation(DoubleJump2, jumpMovement, 200, true)
     animation.runImageAnimation(MaxStrenght, strenghtMovement, 200, true)
+    animation.runImageAnimation(Portal, PortalAnim, 200, true)
     EON.ay = 300
     EON.setBounceOnWall(false)
     controller.moveSprite(EON, 100, 0)
@@ -190,7 +198,6 @@ function create_enemy() {
     //  Vuelve al modo patrulla si el jugador se aleja
     function attack_player() {
         let current_time: number;
-        let projectile: Sprite;
         
         if (is_attacking) {
             Mago.vx = 0
@@ -209,6 +216,14 @@ function create_enemy() {
                 //  Velocidad en X dirigida al jugador
                 //  Velocidad en Y (horizontal)
                 projectile.setKind(SpriteKind.projectile)
+                if (EON.x - Mago.x < 0) {
+                    //  Jugador a la izquierda
+                    animation.runImageAnimation(projectile, BallLeft, 250, true)
+                } else {
+                    //  Jugador a la derecha
+                    animation.runImageAnimation(projectile, BallRight, 250, true)
+                }
+                
                 last_shot_time = current_time
             }
             
@@ -296,30 +311,27 @@ function create_hearts() {
 }
 
 function lose_heart() {
+    let is_taking_damage: boolean;
+    let damage_time: number;
     
     if (heart_count > 0) {
         //  Quitar un corazón visualmente
         hearts[heart_count - 1].destroy()
         heart_count -= 1
+        is_taking_damage = true
+        damage_time = game.runtime()
+        console.log("Estado de daño activado inmediatamente")
+        //  Configurar animación de daño dependiendo de la dirección actual
+        if (currentAnimationEON == "Left") {
+            animation.stopAnimation(animation.AnimationTypes.All, EON)
+            animation.runImageAnimation(EON, DamageLeft, 200, false)
+        } else if (currentAnimationEON == "Right") {
+            animation.stopAnimation(animation.AnimationTypes.All, EON)
+            animation.runImageAnimation(EON, DamageRight, 200, false)
+        }
+        
         if (heart_count == 0) {
-            isFirstLevel = false
-            sprites.destroyAllSpritesOfKind(SpriteKind.EON)
-            sprites.destroyAllSpritesOfKind(SpriteKind.soul)
-            sprites.destroyAllSpritesOfKind(SpriteKind.powerup)
-            sprites.destroyAllSpritesOfKind(SpriteKind.enemy)
-            sprites.destroyAllSpritesOfKind(SpriteKind.projectile)
-            sprites.destroyAllSpritesOfKind(SpriteKind.UI)
-            score_label.setText("")
-            score = 0
-            patrol_direction = 1
-            last_shot_time = 0
-            current_animation = ""
-            heart_count = 3
-            hearts = []
-            tiles.setCurrentTilemap(tilemap`
-                CleanLevel
-            `)
-            levelSelector()
+            returnLevelSelector()
         }
         
     }
@@ -337,6 +349,29 @@ game.onUpdate(function check_collision_with_projectile() {
         
     }
 })
+function returnLevelSelector() {
+    
+    isFirstLevel = false
+    sprites.destroyAllSpritesOfKind(SpriteKind.EON)
+    sprites.destroyAllSpritesOfKind(SpriteKind.soul)
+    sprites.destroyAllSpritesOfKind(SpriteKind.powerup)
+    sprites.destroyAllSpritesOfKind(SpriteKind.enemy)
+    sprites.destroyAllSpritesOfKind(SpriteKind.projectile)
+    sprites.destroyAllSpritesOfKind(SpriteKind.UI)
+    score_label.setText("")
+    score_label = null
+    score = 0
+    patrol_direction = 1
+    last_shot_time = 0
+    current_animation = ""
+    heart_count = 3
+    hearts = []
+    tiles.setCurrentTilemap(tilemap`
+        CleanLevel
+    `)
+    levelSelector()
+}
+
 let EON : Sprite = null
 let RecPlay : Sprite = null
 let LevelOne : Sprite = null
@@ -365,9 +400,14 @@ let is_attacking = false
 let patrol_direction = 1
 let last_shot_time = 0
 let current_animation = ""
+let currentAnimationEON = ""
 let heart_count = 3
 let hearts : Sprite[] = []
 let isFirstLevel = false
+let projectile : Sprite = null
+let is_taking_damage = false
+let damage_time = 0
+let Portal : Sprite = null
 scene.setBackgroundImage(assets.image`
     myImage
 `)
@@ -377,6 +417,12 @@ let lookRight = assets.animation`
 `
 lookLeft = assets.animation`
     LookingLeft
+`
+let attackLeft = assets.animation`
+    AttackingLeft
+`
+let attackRight = assets.animation`
+    AttackingRight
 `
 let soulMovement = assets.animation`
     Soul
@@ -405,13 +451,55 @@ let MageRightAttack = assets.animation`
 let MageLeftAttack = assets.animation`
     MageAttackLeft
 `
+let BallLeft = assets.animation`
+    BolaAnimLeft
+`
+let BallRight = assets.animation`
+    BolaAnimRight
+`
+let DamageRight = assets.animation`
+    DamageRight
+`
+let DamageLeft = assets.animation`
+    DamageLeft
+`
+let PortalAnim = assets.animation`
+    PortalFinal
+`
 game.onUpdate(function on_on_update() {
-    let currentAnimation: string;
+    let elapsed_time: number;
+    
+    console.log("Update - Estado de daño: {is_taking_damage}")
+    if (is_taking_damage) {
+        //  Calcular tiempo transcurrido desde el daño
+        elapsed_time = game.runtime() - damage_time
+        if (elapsed_time < 500) {
+            //  Estado de daño dura 500 ms
+            return
+        } else {
+            //  Evitar ejecutar otras animaciones
+            //  Terminar el estado de daño después de 500 ms
+            is_taking_damage = false
+            console.log("Estado de daño desactivado")
+        }
+        
+    }
+    
+    //  Si no está en daño, manejar animaciones normales
+    if (controller.A.isPressed() && isFirstLevel) {
+        if (currentAnimationEON == "Left") {
+            animation.runImageAnimation(EON, attackLeft, 50, false)
+        } else if (currentAnimationEON == "Right") {
+            animation.runImageAnimation(EON, attackRight, 50, false)
+        }
+        
+    }
+    
     if (controller.left.isPressed()) {
-        currentAnimation = "Left"
+        currentAnimationEON = "Left"
         animation.runImageAnimation(EON, lookLeft, 200, true)
     } else if (controller.right.isPressed()) {
-        currentAnimation = "Right"
+        currentAnimationEON = "Right"
         animation.runImageAnimation(EON, lookRight, 200, true)
     }
     
@@ -481,6 +569,15 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.powerup, function on_on_overlap3(sp
         MS_time = 5
         animation.runImageAnimation(MS_label, MSBarMovement, 1000, true)
         countdown_active_MS = true
+    }
+    
+})
+sprites.onOverlap(SpriteKind.EON, SpriteKind.portal, function on_on_overlap4(sprite4: Sprite, otherSprite4: Sprite) {
+    
+    if (otherSprite4 == Portal && controller.A.isPressed()) {
+        levelsPass[1] = true
+        otherSprite4.destroy()
+        returnLevelSelector()
     }
     
 })
