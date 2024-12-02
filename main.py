@@ -144,7 +144,7 @@ def update_score():
         
         score_sprite = sprites.create(assets.image("""
                     SoulStatic
-            """))
+            """), SpriteKind.UI)
         score_sprite.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
         
         center_score()
@@ -241,12 +241,13 @@ def create_hearts():
         heart = sprites.create(assets.image("""
             Corazon
         """), SpriteKind.UI)
+        scaling.scale_to_percent(heart, 50, ScaleDirection.UNIFORMLY, ScaleAnchor.MIDDLE)
         heart.set_position(120 + i * 15, 10)
         hearts.append(heart)
         heart.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
 
 def lose_heart():
-    global heart_count, score, patrol_direction, last_shot_time, current_animation, heart_count, hearts, isFirstLevel
+    global heart_count, score, patrol_direction, last_shot_time, current_animation, heart_count, hearts, isFirstLevel, score_label
     if heart_count > 0:
         # Quitar un corazón visualmente
         hearts[heart_count - 1].destroy()
@@ -259,6 +260,7 @@ def lose_heart():
             sprites.destroy_all_sprites_of_kind(SpriteKind.enemy)
             sprites.destroy_all_sprites_of_kind(SpriteKind.projectile)
             sprites.destroy_all_sprites_of_kind(SpriteKind.UI)
+            score_label.set_text("")
             score = 0
             patrol_direction = 1
             last_shot_time = 0
@@ -396,7 +398,7 @@ def on_on_overlap3(sprite3, otherSprite3):
         otherSprite3.destroy()
         DJ_label = sprites.create(assets.image("""
                                             DJBar
-                    """))
+                    """), SpriteKind.UI)
         DJ_label.set_position(30, 20)
         DJ_label.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
         DJ_time = 5
@@ -407,7 +409,7 @@ def on_on_overlap3(sprite3, otherSprite3):
         otherSprite3.destroy()
         MS_label = sprites.create(assets.image("""
                 MSBar
-                """))
+                """), SpriteKind.UI)
         MS_label.set_position(30, 10)
         MS_label.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
         MS_time = 5

@@ -158,7 +158,7 @@ function update_score() {
         score_label.setFlag(SpriteFlag.RelativeToCamera, true)
         score_sprite = sprites.create(assets.image`
                     SoulStatic
-            `)
+            `, SpriteKind.UI)
         score_sprite.setFlag(SpriteFlag.RelativeToCamera, true)
         center_score()
     } else {
@@ -288,6 +288,7 @@ function create_hearts() {
         heart = sprites.create(assets.image`
             Corazon
         `, SpriteKind.UI)
+        scaling.scaleToPercent(heart, 50, ScaleDirection.Uniformly, ScaleAnchor.Middle)
         heart.setPosition(120 + i * 15, 10)
         hearts.push(heart)
         heart.setFlag(SpriteFlag.RelativeToCamera, true)
@@ -308,6 +309,7 @@ function lose_heart() {
             sprites.destroyAllSpritesOfKind(SpriteKind.enemy)
             sprites.destroyAllSpritesOfKind(SpriteKind.projectile)
             sprites.destroyAllSpritesOfKind(SpriteKind.UI)
+            score_label.setText("")
             score = 0
             patrol_direction = 1
             last_shot_time = 0
@@ -462,7 +464,7 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.powerup, function on_on_overlap3(sp
         otherSprite3.destroy()
         DJ_label = sprites.create(assets.image`
                                             DJBar
-                    `)
+                    `, SpriteKind.UI)
         DJ_label.setPosition(30, 20)
         DJ_label.setFlag(SpriteFlag.RelativeToCamera, true)
         DJ_time = 5
@@ -473,7 +475,7 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.powerup, function on_on_overlap3(sp
         otherSprite3.destroy()
         MS_label = sprites.create(assets.image`
                 MSBar
-                `)
+                `, SpriteKind.UI)
         MS_label.setPosition(30, 10)
         MS_label.setFlag(SpriteFlag.RelativeToCamera, true)
         MS_time = 5

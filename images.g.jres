@@ -99,6 +99,16 @@
         "mimeType": "image/x-mkcd-f4",
         "displayName": "Corazon"
     },
+    "image20": {
+        "data": "hwQYACAAAAD6////r////6////+v//+vz////8/////P////z///z//8/////P//z/////z//8//z////8///8///8/////8///8///P///P///P/////P//r6qqqqqqqqqqqqqqqv///6/MzMzMzMzMzMzMzKz/yv+vzMzMzMzMzMzMzMysr//8r8zMzMzMzMzMzMzMrPz/z6zMrKqqqqqqqqqqzKz///+vzKzMzMzMzMzMrMys////r8yszMzMzMzMzKzMrP///6/MrMzMzMzMzMyszKz///+vzKzMzMzMzMzMrMys///PrMysqqqqqqqqqqrMrP///K/MzMzMzMzMzMzMzKz8yv+vzMzMzMzMzMzMzMysr///r8zMzMzMzMzMzMzMrP///6+qqqqqqqqqqqqqqqr////8///P///P///P/////P/P////z///z///z/////z//P////z//8/////8///Pz////8/////P////z///z/r///+v////r////6///68=",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "Portal"
+    },
+    "image21": {
+        "data": "hwQQABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADw//8AAADw/89Ewg8AAADPIvIv/A8A/8JMIk/C/ADwT0Qk9C/8AM8iIiJPJPwA8E9E8k8i/AD/wkxCRML8AADPIkQk/A8A8P/MRMIPAAAAAP///wAAAAAAAAAAAAAAAAAAAAAAAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "Skull"
+    },
     "anim1": {
         "namespace": "myAnimations",
         "id": "anim1",
