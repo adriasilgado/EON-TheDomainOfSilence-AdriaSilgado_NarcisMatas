@@ -135,6 +135,7 @@ function FirstLevel() {
     LevelTwoBlock.destroy()
     LevelThreeBlock.destroy()
     create_enemy()
+    create_skull()
     controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
         
         if (EON.isHittingTile(CollisionDirection.Bottom)) {
@@ -194,6 +195,7 @@ function create_enemy() {
         Mago
     `, SpriteKind.enemy)
     Mago.setPosition(260, 180)
+    Mago.ay = 200
     //  Configurar el comportamiento del enemigo
     //  Vuelve al modo patrulla si el jugador se aleja
     function attack_player() {
@@ -205,7 +207,7 @@ function create_enemy() {
             current_time = game.runtime()
             //  Tiempo actual del juego
             console.log(current_animation)
-            if (current_time - last_shot_time > 1000 && current_animation != "") {
+            if (current_time - last_shot_time > 1000 && current_animation != "" && !isDead) {
                 //  Dispara cada 1 segundo
                 //  Crear un proyectil
                 projectile = sprites.createProjectileFromSprite(assets.image`
@@ -262,6 +264,14 @@ function create_enemy() {
         }
         
     })
+    game.onUpdate(function endMap() {
+        if (tiles.tileAtLocationEquals(EON.tilemapLocation(), assets.tile`
+                EndMap
+                `)) {
+            returnLevelSelector()
+        }
+        
+    })
     game.onUpdate(function on_on_update2() {
         
         if (!is_attacking && isFirstLevel) {
@@ -289,6 +299,110 @@ function create_enemy() {
                 //  Jugador a la derecha
                 animation.runImageAnimation(Mago, MageRightAttack, 250, true)
                 current_animation = "MageRightAttack"
+            }
+            
+        }
+        
+    })
+}
+
+function create_skull() {
+    
+    skull_is_attacking = false
+    skull_patrol_direction = -1
+    //  Dirección inicial de patrullaje (-1: izquierda, 1: derecha)
+    skull_last_attack_time = game.runtime()
+    //  Crear el enemigo Skull
+    Skull = sprites.create(assets.image`
+        Skull
+    `, SpriteKind.enemy)
+    Skull.setPosition(400, 150)
+    //  Posición inicial del enemigo
+    Skull.ay = 200
+    //  Configurar patrullaje
+    //  Detectar y perseguir a EON
+    //  Vuelve a patrullar si EON está fuera de rango
+    //  Atacar a EON
+    //  Animaciones de patrullaje y persecución
+    //  Registrar funciones de actualización
+    game.onUpdate(function skull_patrol() {
+        
+        if (!skull_is_attacking) {
+            //  Solo patrulla si no está atacando
+            Skull.vx = skull_patrol_direction * 50
+            //  Velocidad de patrullaje
+            if (tiles.tileAtLocationEquals(Skull.tilemapLocation(), assets.tile`
+                            PatrolStopMago
+                        `)) {
+                skull_patrol_direction *= -1
+                //  Cambiar dirección al llegar al borde
+                Skull.vx = skull_patrol_direction * 50
+            }
+            
+        }
+        
+    })
+    game.onUpdate(function skull_detect_and_chase() {
+        
+        let distance_to_player = Math.abs(Skull.x - EON.x)
+        //  Distancia horizontal entre Skull y EON
+        if (distance_to_player < 10) {
+            //  Si detecta a EON
+            skull_is_attacking = true
+            if (distance_to_player > 2) {
+                //  Persigue si está lejos
+                Skull.vx = Skull.x < EON.x ? 80 : -80
+            } else {
+                //  Mayor velocidad hacia EON
+                //  Si está muy cerca, se detiene para atacar
+                Skull.vx = 0
+            }
+            
+        } else {
+            skull_is_attacking = false
+        }
+        
+    })
+    game.onUpdate(function skull_attack_player() {
+        let current_time: number;
+        
+        if (skull_is_attacking && Skull.vx == 0) {
+            //  Solo ataca si está quieto y en rango
+            current_time = game.runtime()
+            if (current_time - skull_last_attack_time > 1000) {
+                //  1 segundo entre ataques
+                //  Animación de ataque
+                if (EON.x - Skull.x < 0 && skull_current_animation != "SkullLeftAttack") {
+                    //  Jugador a la izquierda
+                    animation.runImageAnimation(Skull, SkullLeftAttack, 250, true)
+                    skull_current_animation = "SkullLeftAttack"
+                } else if (EON.x - Skull.x > 0 && skull_current_animation != "SkullRightAttack") {
+                    //  Jugador a la derecha
+                    animation.runImageAnimation(Skull, SkullRightAttack, 250, true)
+                    skull_current_animation = "SkullRightAttack"
+                }
+                
+                //  Aplicar daño si no está en estado de daño
+                if (Skull.overlapsWith(EON)) {
+                    lose_heart()
+                }
+                
+                skull_last_attack_time = current_time
+            }
+            
+        }
+        
+    })
+    game.onUpdate(function skull_animations() {
+        
+        if (!skull_is_attacking) {
+            //  Solo anima en patrullaje si no está atacando
+            if (skull_patrol_direction == -1 && skull_current_animation != "SkullLeft") {
+                animation.runImageAnimation(Skull, SkullLeft, 1000, true)
+                skull_current_animation = "SkullLeft"
+            } else if (skull_patrol_direction == 1 && skull_current_animation != "SkullRight") {
+                animation.runImageAnimation(Skull, SkullRight, 1000, true)
+                skull_current_animation = "SkullRight"
             }
             
         }
@@ -409,6 +523,12 @@ let is_taking_damage = false
 let damage_time = 0
 let Portal : Sprite = null
 let canAttack = false
+let isDead = false
+let Skull : Sprite = null
+let skull_is_attacking = false
+let skull_patrol_direction = 1
+let skull_last_attack_time = 0
+let skull_current_animation = ""
 scene.setBackgroundImage(assets.image`
     myImage
 `)
@@ -451,6 +571,18 @@ let MageRightAttack = assets.animation`
 `
 let MageLeftAttack = assets.animation`
     MageAttackLeft
+`
+let SkullRight = assets.animation`
+    SkullIdleRight
+`
+let SkullLeft = assets.animation`
+    SkullIdleLeft
+`
+let SkullRightAttack = assets.animation`
+    SkullAttackRight
+`
+let SkullLeftAttack = assets.animation`
+    SkullAttackLeft
 `
 let BallLeft = assets.animation`
     BolaAnimLeft
@@ -590,10 +722,19 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.enemy, function on_on_overlap5(spri
     
     if (otherSprite5 == Mago && canAttack) {
         otherSprite5.destroy()
+        isDead = true
         current_animation = ""
     }
     
 })
+sprites.onOverlap(SpriteKind.EON, SpriteKind.enemy, function on_on_overlap6(sprite6: Sprite, otherSprite6: Sprite) {
+    
+    if (otherSprite6 == Skull && canAttack) {
+        otherSprite6.destroy()
+    }
+    
+})
+skull_is_attacking
 game.onUpdateInterval(1000, function update_timer_DJ() {
     
     if (countdown_active_DJ) {

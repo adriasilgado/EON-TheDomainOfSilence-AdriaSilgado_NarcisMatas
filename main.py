@@ -124,6 +124,7 @@ def FirstLevel():
     LevelTwoBlock.destroy()
     LevelThreeBlock.destroy()
     create_enemy()
+    create_skull()
     
     def on_b_pressed():
         global canDoubleJump, isDoubleJump
@@ -177,6 +178,7 @@ def create_enemy():
         Mago
     """), SpriteKind.enemy)
     Mago.set_position(260, 180)
+    Mago.ay = 200
 
     # Configurar el comportamiento del enemigo
     def patrol():
@@ -200,12 +202,12 @@ def create_enemy():
             is_attacking = False  # Vuelve al modo patrulla si el jugador se aleja
 
     def attack_player():
-        global last_shot_time, current_animation, projectile
+        global last_shot_time, current_animation, projectile, isDead
         if is_attacking:
             Mago.vx = 0  # Detener el movimiento
             current_time = game.runtime()  # Tiempo actual del juego
             print (current_animation)
-            if current_time - last_shot_time > 1000 and current_animation != "":  # Dispara cada 1 segundo
+            if current_time - last_shot_time > 1000 and current_animation != "" and not isDead:  # Dispara cada 1 segundo
                 # Crear un proyectil
                 projectile = sprites.create_projectile_from_sprite(
                     assets.image("""
@@ -224,6 +226,13 @@ def create_enemy():
     # Comportamiento continuo
     game.on_update(patrol)
     game.on_update(detect_player)
+
+    def endMap():
+        if tiles.tile_at_location_equals(EON.tilemap_location(), assets.tile("""
+                EndMap
+                """)):
+            returnLevelSelector()
+    game.on_update(endMap)
 
     def on_on_update2():
         global patrol_direction, is_attacking, current_animation
@@ -246,6 +255,81 @@ def create_enemy():
                 animation.run_image_animation(Mago, MageRightAttack, 250, True)
                 current_animation = "MageRightAttack"
     game.on_update(on_on_update3)
+
+
+def create_skull():
+    global Skull, skull_is_attacking, skull_patrol_direction, skull_last_attack_time
+
+    skull_is_attacking = False
+    skull_patrol_direction = -1  # Dirección inicial de patrullaje (-1: izquierda, 1: derecha)
+    skull_last_attack_time = game.runtime()
+
+    # Crear el enemigo Skull
+    Skull = sprites.create(assets.image("""
+        Skull
+    """), SpriteKind.enemy)
+    Skull.set_position(400, 150)  # Posición inicial del enemigo
+    Skull.ay = 200
+
+    # Configurar patrullaje
+    def skull_patrol():
+        global skull_patrol_direction
+        if not skull_is_attacking:  # Solo patrulla si no está atacando
+            Skull.vx = skull_patrol_direction * 50  # Velocidad de patrullaje
+            if tiles.tile_at_location_equals(Skull.tilemap_location(), assets.tile("""
+                            PatrolStopMago
+                        """)):
+                skull_patrol_direction *= -1  # Cambiar dirección al llegar al borde
+                Skull.vx = skull_patrol_direction * 50
+
+    # Detectar y perseguir a EON
+    def skull_detect_and_chase():
+        global skull_is_attacking
+        distance_to_player = Math.abs(Skull.x - EON.x)  # Distancia horizontal entre Skull y EON
+        if distance_to_player < 10:  # Si detecta a EON
+            skull_is_attacking = True
+            if distance_to_player > 2:  # Persigue si está lejos
+                Skull.vx = 80 if Skull.x < EON.x else -80  # Mayor velocidad hacia EON
+            else:  # Si está muy cerca, se detiene para atacar
+                Skull.vx = 0
+        else:
+            skull_is_attacking = False  # Vuelve a patrullar si EON está fuera de rango
+
+    # Atacar a EON
+    def skull_attack_player():
+        global skull_last_attack_time, skull_current_animation
+        if skull_is_attacking and Skull.vx == 0:  # Solo ataca si está quieto y en rango
+            current_time = game.runtime()
+            if current_time - skull_last_attack_time > 1000:  # 1 segundo entre ataques
+                # Animación de ataque
+                if (EON.x - Skull.x) < 0 and skull_current_animation != "SkullLeftAttack":  # Jugador a la izquierda
+                    animation.run_image_animation(Skull, SkullLeftAttack, 250, True)
+                    skull_current_animation = "SkullLeftAttack"
+                elif (EON.x - Skull.x) > 0 and skull_current_animation != "SkullRightAttack":  # Jugador a la derecha
+                    animation.run_image_animation(Skull, SkullRightAttack, 250, True)
+                    skull_current_animation = "SkullRightAttack"
+
+                # Aplicar daño si no está en estado de daño
+                if Skull.overlaps_with(EON):
+                    lose_heart()
+                skull_last_attack_time = current_time
+
+    # Animaciones de patrullaje y persecución
+    def skull_animations():
+        global skull_patrol_direction, skull_is_attacking, skull_current_animation
+        if not skull_is_attacking:  # Solo anima en patrullaje si no está atacando
+            if skull_patrol_direction == -1 and skull_current_animation != "SkullLeft":
+                animation.run_image_animation(Skull, SkullLeft, 1000, True)
+                skull_current_animation = "SkullLeft"
+            elif skull_patrol_direction == 1 and skull_current_animation != "SkullRight":
+                animation.run_image_animation(Skull, SkullRight, 1000, True)
+                skull_current_animation = "SkullRight"
+
+    # Registrar funciones de actualización
+    game.on_update(skull_patrol)
+    game.on_update(skull_detect_and_chase)
+    game.on_update(skull_attack_player)
+    game.on_update(skull_animations)
 
 def create_hearts():
     global hearts
@@ -345,6 +429,12 @@ is_taking_damage = False
 damage_time = 0
 Portal:Sprite = None
 canAttack = False
+isDead = False
+Skull:Sprite = None
+skull_is_attacking = False
+skull_patrol_direction = 1
+skull_last_attack_time = 0
+skull_current_animation = ""
 
 scene.set_background_image(assets.image("""
     myImage
@@ -388,6 +478,18 @@ MageRightAttack = assets.animation("""
 """)
 MageLeftAttack = assets.animation("""
     MageAttackLeft
+""")
+SkullRight = assets.animation("""
+    SkullIdleRight
+""")
+SkullLeft = assets.animation("""
+    SkullIdleLeft
+""")
+SkullRightAttack = assets.animation("""
+    SkullAttackRight
+""")
+SkullLeftAttack = assets.animation("""
+    SkullAttackLeft
 """)
 BallLeft = assets.animation("""
     BolaAnimLeft
@@ -503,11 +605,20 @@ def on_on_overlap4(sprite4, otherSprite4):
 sprites.on_overlap(SpriteKind.EON, SpriteKind.portal, on_on_overlap4)
 
 def on_on_overlap5(sprite5, otherSprite5):
-    global canAttack, current_animation
+    global canAttack, current_animation, isDead
     if otherSprite5 == Mago and canAttack:
         otherSprite5.destroy()
+        isDead = True
         current_animation = ""
 sprites.on_overlap(SpriteKind.EON, SpriteKind.enemy, on_on_overlap5)
+
+def on_on_overlap6(sprite6, otherSprite6):
+    global canAttack
+    if otherSprite6 == Skull and canAttack:
+        otherSprite6.destroy()
+sprites.on_overlap(SpriteKind.EON, SpriteKind.enemy, on_on_overlap6)
+
+skull_is_attacking
 
 def update_timer_DJ():
     global DJ_time, countdown_active_DJ, DJ_label, isDoubleJump
