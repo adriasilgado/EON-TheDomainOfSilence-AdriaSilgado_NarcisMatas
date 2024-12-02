@@ -94,6 +94,11 @@
         "mimeType": "image/x-mkcd-f4",
         "displayName": "SoulMarker"
     },
+    "image19": {
+        "data": "hwQQABAAAAAA8P//DwAAAAAvIiLyAAAA8CIiIiIPAADwIiIiIvIAAPAiIiIiIg8A8CIiIiIi8gAALyIiIiIiDwDwIiIiIiLyAPAiIiIiIvIALyIiIiIiD/AiIiIiIvIA8CIiIiIiDwDwMiMiIvIAAPAiIyIiDwAAAC8iIvIAAAAA8P//DwAAAA==",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "Corazon"
+    },
     "anim1": {
         "namespace": "myAnimations",
         "id": "anim1",

@@ -23,6 +23,11 @@ def play():
     sceneOne()
 def levelSelector():
     global EON, LevelOne, LevelTwo, LevelThree, LevelTwoBlock, levelsPass, LevelThreeBlock
+    tiles.set_current_tilemap(tilemap("""
+            CleanLevel
+        """))
+        
+    scene.center_camera_at(80, 60)
     scene.set_background_image(assets.image("""
             LevelSelector
         """))
