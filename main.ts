@@ -408,6 +408,7 @@ let projectile : Sprite = null
 let is_taking_damage = false
 let damage_time = 0
 let Portal : Sprite = null
+let canAttack = false
 scene.setBackgroundImage(assets.image`
     myImage
 `)
@@ -471,6 +472,7 @@ game.onUpdate(function on_on_update() {
     
     console.log("Update - Estado de daño: {is_taking_damage}")
     if (is_taking_damage) {
+        canAttack = false
         //  Calcular tiempo transcurrido desde el daño
         elapsed_time = game.runtime() - damage_time
         if (elapsed_time < 500) {
@@ -493,14 +495,17 @@ game.onUpdate(function on_on_update() {
             animation.runImageAnimation(EON, attackRight, 50, false)
         }
         
+        canAttack = true
     }
     
     if (controller.left.isPressed()) {
         currentAnimationEON = "Left"
         animation.runImageAnimation(EON, lookLeft, 200, true)
+        canAttack = false
     } else if (controller.right.isPressed()) {
         currentAnimationEON = "Right"
         animation.runImageAnimation(EON, lookRight, 200, true)
+        canAttack = false
     }
     
 })
@@ -578,6 +583,14 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.portal, function on_on_overlap4(spr
         levelsPass[1] = true
         otherSprite4.destroy()
         returnLevelSelector()
+    }
+    
+})
+sprites.onOverlap(SpriteKind.EON, SpriteKind.enemy, function on_on_overlap5(sprite5: Sprite, otherSprite5: Sprite) {
+    
+    if (otherSprite5 == Mago && canAttack) {
+        otherSprite5.destroy()
+        current_animation = ""
     }
     
 })

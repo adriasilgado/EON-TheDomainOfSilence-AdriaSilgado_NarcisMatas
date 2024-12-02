@@ -344,6 +344,7 @@ projectile:Sprite = None
 is_taking_damage = False
 damage_time = 0
 Portal:Sprite = None
+canAttack = False
 
 scene.set_background_image(assets.image("""
     myImage
@@ -405,9 +406,10 @@ PortalAnim = assets.animation("""
 """)
 
 def on_on_update():
-    global is_taking_damage, damage_time, currentAnimationEON, isFirstLevel
+    global is_taking_damage, damage_time, currentAnimationEON, isFirstLevel, canAttack
     print(f"Update - Estado de daño: {is_taking_damage}")
     if is_taking_damage:
+        canAttack = False
         # Calcular tiempo transcurrido desde el daño
         elapsed_time = game.runtime() - damage_time
         if elapsed_time < 500:  # Estado de daño dura 500 ms
@@ -424,12 +426,15 @@ def on_on_update():
             animation.run_image_animation(EON, attackLeft, 50, False)
         elif currentAnimationEON == "Right":
             animation.run_image_animation(EON, attackRight, 50, False)
+        canAttack = True
     if controller.left.is_pressed():
         currentAnimationEON = "Left"
         animation.run_image_animation(EON, lookLeft, 200, True)
+        canAttack = False
     elif controller.right.is_pressed():
         currentAnimationEON = "Right"
         animation.run_image_animation(EON, lookRight, 200, True)
+        canAttack = False
 game.on_update(on_on_update)
 
 def on_on_overlap(sprite, otherSprite):
@@ -496,6 +501,13 @@ def on_on_overlap4(sprite4, otherSprite4):
         otherSprite4.destroy()
         returnLevelSelector()
 sprites.on_overlap(SpriteKind.EON, SpriteKind.portal, on_on_overlap4)
+
+def on_on_overlap5(sprite5, otherSprite5):
+    global canAttack, current_animation
+    if otherSprite5 == Mago and canAttack:
+        otherSprite5.destroy()
+        current_animation = ""
+sprites.on_overlap(SpriteKind.EON, SpriteKind.enemy, on_on_overlap5)
 
 def update_timer_DJ():
     global DJ_time, countdown_active_DJ, DJ_label, isDoubleJump
