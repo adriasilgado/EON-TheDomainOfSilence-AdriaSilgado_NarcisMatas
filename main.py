@@ -80,7 +80,8 @@ def sceneOne():
         DialogLayout.BOTTOM)
     sceneTwo()
 def FirstLevel():
-    global EON, Soul, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, DoubleJump2, isDoubleJump, isFirstLevel, Portal
+    global EON, Soul, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, DoubleJump2, isDoubleJump, isFirstLevel, Portal, memoryScore, score
+    memoryScore = score
     isFirstLevel = True
     update_score()
     create_hearts()
@@ -121,6 +122,10 @@ def FirstLevel():
         Level1
     """))
     tiles.place_on_tile(EON, tiles.get_tile_location(0, 11))
+    if LevelTwo != None:
+        LevelTwo.destroy()
+    if LevelThree != None:
+        LevelThree.destroy()
     LevelTwoBlock.destroy()
     LevelThreeBlock.destroy()
     create_enemy()
@@ -148,7 +153,7 @@ def FirstLevel():
 def update_score():
     global score_label, score_sprite
     if score_label is None:
-        score_label = textsprite.create("0", 3, 6) # el 3 (fondo) y el 6(fuente) cambian colores
+        score_label = textsprite.create(str(score), 3, 6) # el 3 (fondo) y el 6(fuente) cambian colores
         score_label.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
         
         score_sprite = sprites.create(assets.image("""
@@ -202,7 +207,7 @@ def create_enemy():
             is_attacking = False  # Vuelve al modo patrulla si el jugador se aleja
 
     def attack_player():
-        global last_shot_time, current_animation, projectile, isDead
+        global last_shot_time, current_animation, projectile, isDead, score
         if is_attacking:
             Mago.vx = 0  # Detener el movimiento
             current_time = game.runtime()  # Tiempo actual del juego
@@ -228,10 +233,11 @@ def create_enemy():
     game.on_update(detect_player)
 
     def endMap():
+        global memoryScore
         if tiles.tile_at_location_equals(EON.tilemap_location(), assets.tile("""
                 EndMap
                 """)):
-            returnLevelSelector()
+            returnLevelSelector(memoryScore)
     game.on_update(endMap)
 
     def on_on_update2():
@@ -258,63 +264,77 @@ def create_enemy():
 
 
 def create_skull():
-    global Skull, skull_is_attacking, skull_patrol_direction, skull_last_attack_time
+    global Skull, skull_is_attacking, skull_patrol_direction, skull_last_attack_time, skull_current_animation
 
     skull_is_attacking = False
     skull_patrol_direction = -1  # Dirección inicial de patrullaje (-1: izquierda, 1: derecha)
     skull_last_attack_time = game.runtime()
+    skull_current_animation = ""
 
     # Crear el enemigo Skull
     Skull = sprites.create(assets.image("""
         Skull
     """), SpriteKind.enemy)
     Skull.set_position(400, 150)  # Posición inicial del enemigo
-    Skull.ay = 200
+    Skull.ay = 200  # Gravedad para mantener al enemigo en el suelo
 
     # Configurar patrullaje
     def skull_patrol():
         global skull_patrol_direction
         if not skull_is_attacking:  # Solo patrulla si no está atacando
             Skull.vx = skull_patrol_direction * 50  # Velocidad de patrullaje
+
+            # Detectar si está en un tile de borde y cambiar de dirección
             if tiles.tile_at_location_equals(Skull.tilemap_location(), assets.tile("""
-                            PatrolStopMago
-                        """)):
-                skull_patrol_direction *= -1  # Cambiar dirección al llegar al borde
+                PatrolStopMago
+            """)):
+                skull_patrol_direction *= -1  # Cambiar dirección
                 Skull.vx = skull_patrol_direction * 50
 
-    # Detectar y perseguir a EON
+    # Detectar a EON y entrar en modo ataque
     def skull_detect_and_chase():
         global skull_is_attacking
         distance_to_player = Math.abs(Skull.x - EON.x)  # Distancia horizontal entre Skull y EON
-        if distance_to_player < 10:  # Si detecta a EON
+        if distance_to_player < 50:  # Detecta a EON dentro de un rango
             skull_is_attacking = True
-            if distance_to_player > 2:  # Persigue si está lejos
-                Skull.vx = 80 if Skull.x < EON.x else -80  # Mayor velocidad hacia EON
-            else:  # Si está muy cerca, se detiene para atacar
-                Skull.vx = 0
-        else:
-            skull_is_attacking = False  # Vuelve a patrullar si EON está fuera de rango
+        elif distance_to_player > 80:  # Si se aleja mucho, vuelve a patrullar
+            skull_is_attacking = False
+
+        # Si está atacando, perseguir a EON
+        if skull_is_attacking:
+            Skull.vx = 80 if Skull.x < EON.x else -80
 
     # Atacar a EON
     def skull_attack_player():
         global skull_last_attack_time, skull_current_animation
-        if skull_is_attacking and Skull.vx == 0:  # Solo ataca si está quieto y en rango
+        if skull_is_attacking and Math.abs(Skull.x - EON.x) < 10:  # Si está cerca del jugador
+            Skull.vx = 0  # Detener el movimiento para atacar
             current_time = game.runtime()
             if current_time - skull_last_attack_time > 1000:  # 1 segundo entre ataques
-                # Animación de ataque
-                if (EON.x - Skull.x) < 0 and skull_current_animation != "SkullLeftAttack":  # Jugador a la izquierda
-                    animation.run_image_animation(Skull, SkullLeftAttack, 250, True)
-                    skull_current_animation = "SkullLeftAttack"
-                elif (EON.x - Skull.x) > 0 and skull_current_animation != "SkullRightAttack":  # Jugador a la derecha
-                    animation.run_image_animation(Skull, SkullRightAttack, 250, True)
-                    skull_current_animation = "SkullRightAttack"
+                # Determinar la dirección de ataque
+                if Skull.x > EON.x:  # Jugador a la izquierda
+                    if skull_current_animation != "SkullLeftAttack":
+                        animation.run_image_animation(Skull, SkullLeftAttack, 250, True)
+                        skull_current_animation = "SkullLeftAttack"
+                elif Skull.x < EON.x:  # Jugador a la derecha
+                    if skull_current_animation != "SkullRightAttack":
+                        animation.run_image_animation(Skull, SkullRightAttack, 250, True)
+                        skull_current_animation = "SkullRightAttack"
 
-                # Aplicar daño si no está en estado de daño
+                # Aplicar daño si está en contacto con EON
                 if Skull.overlaps_with(EON):
                     lose_heart()
                 skull_last_attack_time = current_time
+        else:
+            if skull_is_attacking and Skull.vx != 0:  # Mantener dirección correcta mientras persigue
+                if Skull.vx > 0 and skull_current_animation != "SkullRightAttack":
+                    animation.run_image_animation(Skull, SkullRightAttack, 250, True)
+                    skull_current_animation = "SkullRightAttack"
+                elif Skull.vx < 0 and skull_current_animation != "SkullLeftAttack":
+                    animation.run_image_animation(Skull, SkullLeftAttack, 250, True)
+                    skull_current_animation = "SkullLeftAttack"
 
-    # Animaciones de patrullaje y persecución
+    # Animaciones de patrullaje
     def skull_animations():
         global skull_patrol_direction, skull_is_attacking, skull_current_animation
         if not skull_is_attacking:  # Solo anima en patrullaje si no está atacando
@@ -331,6 +351,7 @@ def create_skull():
     game.on_update(skull_attack_player)
     game.on_update(skull_animations)
 
+
 def create_hearts():
     global hearts
     for i in range(3):
@@ -343,7 +364,7 @@ def create_hearts():
         heart.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
 
 def lose_heart():
-    global heart_count 
+    global heart_count, memoryScore
     if heart_count > 0:
         # Quitar un corazón visualmente
         hearts[heart_count - 1].destroy()
@@ -360,7 +381,7 @@ def lose_heart():
             animation.stop_animation(animation.AnimationTypes.ALL, EON)
             animation.run_image_animation(EON, DamageRight, 200, False)
         if heart_count == 0:
-            returnLevelSelector()
+            returnLevelSelector(memoryScore)
 
 def check_collision_with_projectile():
     global heart_count
@@ -370,7 +391,7 @@ def check_collision_with_projectile():
             lose_heart()
 game.on_update(check_collision_with_projectile)
 
-def returnLevelSelector():
+def returnLevelSelector(setScore):
     global score, patrol_direction, last_shot_time, current_animation, heart_count, hearts, isFirstLevel, score_label, currentAnimationEON, damage_time, is_taking_damage
     isFirstLevel = False
     sprites.destroy_all_sprites_of_kind(SpriteKind.EON)
@@ -381,7 +402,7 @@ def returnLevelSelector():
     sprites.destroy_all_sprites_of_kind(SpriteKind.UI)
     score_label.set_text("")
     score_label = None
-    score = 0
+    score = setScore
     patrol_direction = 1
     last_shot_time = 0
     current_animation = ""
@@ -404,7 +425,8 @@ DoubleJump:Sprite = None
 DoubleJump2:Sprite = None
 MaxStrenght:Sprite = None
 lookLeft: List[Image] = []
-score = 0
+score = 5
+memoryScore = score
 score_label:TextSprite = None
 score_sprite:Sprite = None
 DJ_time = 5
@@ -435,6 +457,7 @@ skull_is_attacking = False
 skull_patrol_direction = 1
 skull_last_attack_time = 0
 skull_current_animation = ""
+skull_live = 2
 
 scene.set_background_image(assets.image("""
     myImage
@@ -597,11 +620,11 @@ def on_on_overlap3(sprite3, otherSprite3):
 sprites.on_overlap(SpriteKind.EON, SpriteKind.powerup, on_on_overlap3)
 
 def on_on_overlap4(sprite4, otherSprite4):
-    global levelsPass
+    global levelsPass, score
     if otherSprite4 == Portal and controller.A.is_pressed():
         levelsPass[1] = True
         otherSprite4.destroy()
-        returnLevelSelector()
+        returnLevelSelector(score)
 sprites.on_overlap(SpriteKind.EON, SpriteKind.portal, on_on_overlap4)
 
 def on_on_overlap5(sprite5, otherSprite5):
@@ -613,9 +636,11 @@ def on_on_overlap5(sprite5, otherSprite5):
 sprites.on_overlap(SpriteKind.EON, SpriteKind.enemy, on_on_overlap5)
 
 def on_on_overlap6(sprite6, otherSprite6):
-    global canAttack
+    global canAttack, skull_live
     if otherSprite6 == Skull and canAttack:
-        otherSprite6.destroy()
+        skull_live -= 1
+        if skull_live <= 0:
+            otherSprite6.destroy()
 sprites.on_overlap(SpriteKind.EON, SpriteKind.enemy, on_on_overlap6)
 
 skull_is_attacking

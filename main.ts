@@ -92,6 +92,7 @@ function sceneOne() {
 
 function FirstLevel() {
     
+    memoryScore = score
     isFirstLevel = true
     update_score()
     create_hearts()
@@ -132,6 +133,14 @@ function FirstLevel() {
         Level1
     `)
     tiles.placeOnTile(EON, tiles.getTileLocation(0, 11))
+    if (LevelTwo != null) {
+        LevelTwo.destroy()
+    }
+    
+    if (LevelThree != null) {
+        LevelThree.destroy()
+    }
+    
     LevelTwoBlock.destroy()
     LevelThreeBlock.destroy()
     create_enemy()
@@ -162,7 +171,7 @@ function FirstLevel() {
 function update_score() {
     
     if (score_label === null) {
-        score_label = textsprite.create("0", 3, 6)
+        score_label = textsprite.create("" + score, 3, 6)
         //  el 3 (fondo) y el 6(fuente) cambian colores
         score_label.setFlag(SpriteFlag.RelativeToCamera, true)
         score_sprite = sprites.create(assets.image`
@@ -265,10 +274,11 @@ function create_enemy() {
         
     })
     game.onUpdate(function endMap() {
+        
         if (tiles.tileAtLocationEquals(EON.tilemapLocation(), assets.tile`
                 EndMap
                 `)) {
-            returnLevelSelector()
+            returnLevelSelector(memoryScore)
         }
         
     })
@@ -312,6 +322,7 @@ function create_skull() {
     skull_patrol_direction = -1
     //  Dirección inicial de patrullaje (-1: izquierda, 1: derecha)
     skull_last_attack_time = game.runtime()
+    skull_current_animation = ""
     //  Crear el enemigo Skull
     Skull = sprites.create(assets.image`
         Skull
@@ -319,11 +330,11 @@ function create_skull() {
     Skull.setPosition(400, 150)
     //  Posición inicial del enemigo
     Skull.ay = 200
+    //  Gravedad para mantener al enemigo en el suelo
     //  Configurar patrullaje
-    //  Detectar y perseguir a EON
-    //  Vuelve a patrullar si EON está fuera de rango
+    //  Detectar a EON y entrar en modo ataque
     //  Atacar a EON
-    //  Animaciones de patrullaje y persecución
+    //  Animaciones de patrullaje
     //  Registrar funciones de actualización
     game.onUpdate(function skull_patrol() {
         
@@ -331,11 +342,12 @@ function create_skull() {
             //  Solo patrulla si no está atacando
             Skull.vx = skull_patrol_direction * 50
             //  Velocidad de patrullaje
+            //  Detectar si está en un tile de borde y cambiar de dirección
             if (tiles.tileAtLocationEquals(Skull.tilemapLocation(), assets.tile`
-                            PatrolStopMago
-                        `)) {
+                PatrolStopMago
+            `)) {
                 skull_patrol_direction *= -1
-                //  Cambiar dirección al llegar al borde
+                //  Cambiar dirección
                 Skull.vx = skull_patrol_direction * 50
             }
             
@@ -346,48 +358,63 @@ function create_skull() {
         
         let distance_to_player = Math.abs(Skull.x - EON.x)
         //  Distancia horizontal entre Skull y EON
-        if (distance_to_player < 10) {
-            //  Si detecta a EON
+        if (distance_to_player < 50) {
+            //  Detecta a EON dentro de un rango
             skull_is_attacking = true
-            if (distance_to_player > 2) {
-                //  Persigue si está lejos
-                Skull.vx = Skull.x < EON.x ? 80 : -80
-            } else {
-                //  Mayor velocidad hacia EON
-                //  Si está muy cerca, se detiene para atacar
-                Skull.vx = 0
-            }
-            
-        } else {
+        } else if (distance_to_player > 80) {
+            //  Si se aleja mucho, vuelve a patrullar
             skull_is_attacking = false
+        }
+        
+        //  Si está atacando, perseguir a EON
+        if (skull_is_attacking) {
+            Skull.vx = Skull.x < EON.x ? 80 : -80
         }
         
     })
     game.onUpdate(function skull_attack_player() {
         let current_time: number;
         
-        if (skull_is_attacking && Skull.vx == 0) {
-            //  Solo ataca si está quieto y en rango
+        if (skull_is_attacking && Math.abs(Skull.x - EON.x) < 10) {
+            //  Si está cerca del jugador
+            Skull.vx = 0
+            //  Detener el movimiento para atacar
             current_time = game.runtime()
             if (current_time - skull_last_attack_time > 1000) {
                 //  1 segundo entre ataques
-                //  Animación de ataque
-                if (EON.x - Skull.x < 0 && skull_current_animation != "SkullLeftAttack") {
+                //  Determinar la dirección de ataque
+                if (Skull.x > EON.x) {
                     //  Jugador a la izquierda
-                    animation.runImageAnimation(Skull, SkullLeftAttack, 250, true)
-                    skull_current_animation = "SkullLeftAttack"
-                } else if (EON.x - Skull.x > 0 && skull_current_animation != "SkullRightAttack") {
+                    if (skull_current_animation != "SkullLeftAttack") {
+                        animation.runImageAnimation(Skull, SkullLeftAttack, 250, true)
+                        skull_current_animation = "SkullLeftAttack"
+                    }
+                    
+                } else if (Skull.x < EON.x) {
                     //  Jugador a la derecha
-                    animation.runImageAnimation(Skull, SkullRightAttack, 250, true)
-                    skull_current_animation = "SkullRightAttack"
+                    if (skull_current_animation != "SkullRightAttack") {
+                        animation.runImageAnimation(Skull, SkullRightAttack, 250, true)
+                        skull_current_animation = "SkullRightAttack"
+                    }
+                    
                 }
                 
-                //  Aplicar daño si no está en estado de daño
+                //  Aplicar daño si está en contacto con EON
                 if (Skull.overlapsWith(EON)) {
                     lose_heart()
                 }
                 
                 skull_last_attack_time = current_time
+            }
+            
+        } else if (skull_is_attacking && Skull.vx != 0) {
+            //  Mantener dirección correcta mientras persigue
+            if (Skull.vx > 0 && skull_current_animation != "SkullRightAttack") {
+                animation.runImageAnimation(Skull, SkullRightAttack, 250, true)
+                skull_current_animation = "SkullRightAttack"
+            } else if (Skull.vx < 0 && skull_current_animation != "SkullLeftAttack") {
+                animation.runImageAnimation(Skull, SkullLeftAttack, 250, true)
+                skull_current_animation = "SkullLeftAttack"
             }
             
         }
@@ -445,7 +472,7 @@ function lose_heart() {
         }
         
         if (heart_count == 0) {
-            returnLevelSelector()
+            returnLevelSelector(memoryScore)
         }
         
     }
@@ -463,7 +490,7 @@ game.onUpdate(function check_collision_with_projectile() {
         
     }
 })
-function returnLevelSelector() {
+function returnLevelSelector(setScore: number) {
     
     isFirstLevel = false
     sprites.destroyAllSpritesOfKind(SpriteKind.EON)
@@ -474,7 +501,7 @@ function returnLevelSelector() {
     sprites.destroyAllSpritesOfKind(SpriteKind.UI)
     score_label.setText("")
     score_label = null
-    score = 0
+    score = setScore
     patrol_direction = 1
     last_shot_time = 0
     current_animation = ""
@@ -498,7 +525,8 @@ let DoubleJump : Sprite = null
 let DoubleJump2 : Sprite = null
 let MaxStrenght : Sprite = null
 let lookLeft : Image[] = []
-let score = 0
+let score = 5
+let memoryScore = score
 let score_label : TextSprite = null
 let score_sprite : Sprite = null
 let DJ_time = 5
@@ -529,6 +557,7 @@ let skull_is_attacking = false
 let skull_patrol_direction = 1
 let skull_last_attack_time = 0
 let skull_current_animation = ""
+let skull_live = 2
 scene.setBackgroundImage(assets.image`
     myImage
 `)
@@ -714,7 +743,7 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.portal, function on_on_overlap4(spr
     if (otherSprite4 == Portal && controller.A.isPressed()) {
         levelsPass[1] = true
         otherSprite4.destroy()
-        returnLevelSelector()
+        returnLevelSelector(score)
     }
     
 })
@@ -730,7 +759,11 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.enemy, function on_on_overlap5(spri
 sprites.onOverlap(SpriteKind.EON, SpriteKind.enemy, function on_on_overlap6(sprite6: Sprite, otherSprite6: Sprite) {
     
     if (otherSprite6 == Skull && canAttack) {
-        otherSprite6.destroy()
+        skull_live -= 1
+        if (skull_live <= 0) {
+            otherSprite6.destroy()
+        }
+        
     }
     
 })
