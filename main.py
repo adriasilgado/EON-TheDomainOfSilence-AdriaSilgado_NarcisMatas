@@ -8,7 +8,7 @@ class SpriteKind:
     projectile = SpriteKind.create()
     UI = SpriteKind.create()
     portal = SpriteKind.create()
-levelsPass = [True, False, False]
+levelsPass = [True, True, False]
 def play():
     global RecPlay
     RecPlay = sprites.create(assets.image("""
@@ -101,7 +101,8 @@ def FirstLevel():
                 Portal
             """), SpriteKind.portal)
     Portal.z = 1
-    Portal.set_position(450, 140)
+    Portal.set_position(1950, 140)
+    Portal.ay = 200
     Soul.set_position(80, 160)
     DoubleJump.set_position(100, 150)
     DoubleJump2.set_position(60, 120)
@@ -119,17 +120,84 @@ def FirstLevel():
                 SceneOne
     """))
     tiles.set_current_tilemap(tilemap("""
-        Level1
+        nivel1
     """))
-    tiles.place_on_tile(EON, tiles.get_tile_location(0, 11))
+    tiles.place_on_tile(EON, tiles.get_tile_location(2, 8))
     if LevelTwo != None:
         LevelTwo.destroy()
     if LevelThree != None:
         LevelThree.destroy()
-    LevelTwoBlock.destroy()
-    LevelThreeBlock.destroy()
+    if LevelTwoBlock != None:
+        LevelTwoBlock.destroy()
+    if LevelThreeBlock != None:
+        LevelThreeBlock.destroy()
     create_enemy()
     create_skull()
+
+    def on_b_pressed():
+        global canDoubleJump, isDoubleJump
+        if EON.is_hitting_tile(CollisionDirection.BOTTOM):
+            EON.vy = -150
+            canDoubleJump = True
+        elif canDoubleJump and isDoubleJump:
+            EON.vy = -150
+            canDoubleJump = False
+    controller.B.on_event(ControllerButtonEvent.PRESSED, on_b_pressed)
+
+    def on_up_pressed():
+        global canDoubleJump, isDoubleJump
+        if EON.is_hitting_tile(CollisionDirection.BOTTOM):
+            EON.vy = -150
+        elif canDoubleJump and isDoubleJump:
+            EON.vy = -150
+            canDoubleJump = False
+    controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
+
+def SecondLevel():
+    global EON, Soul, LevelOne, LevelThreeBlock, DoubleJump, MaxStrenght, DoubleJump2, isDoubleJump, isFirstLevel, Portal, memoryScore, score
+    memoryScore = score
+    update_score()
+    create_hearts()
+    Soul = sprites.create(assets.image("""
+            SoulStatic
+        """), SpriteKind.soul)
+    DoubleJump = sprites.create(assets.image("""
+            DoubleJump
+        """), SpriteKind.powerup)
+    MaxStrenght = sprites.create(assets.image("""
+            MaxStrenght
+        """), SpriteKind.powerup)
+    Portal = sprites.create(assets.image("""Portal"""), SpriteKind.portal)
+    Portal.z = 1
+    Portal.set_position(1950, 140)
+    Portal.ay = 200
+    Soul.set_position(80, 160)
+    DoubleJump.set_position(100, 150)
+    MaxStrenght.set_position(140, 150)
+    animation.run_image_animation(Soul, soulMovement, 200, True)
+    animation.run_image_animation(DoubleJump, jumpMovement, 200, True)
+    animation.run_image_animation(MaxStrenght, strenghtMovement, 200, True)
+    animation.run_image_animation(Portal, PortalAnim, 200, True)
+    EON.ay = 300
+    EON.set_bounce_on_wall(False)
+    controller.move_sprite(EON, 100, 0)
+    scene.camera_follow_sprite(EON)
+    scene.set_background_image(assets.image("""
+            SceneOne
+    """))
+    tiles.set_current_tilemap(tilemap("""
+        nivel2
+    """))
+    tiles.place_on_tile(EON, tiles.get_tile_location(2, 8))
+    if LevelOne != None:
+        LevelOne.destroy()
+    if LevelThree != None:
+        LevelThree.destroy()
+    if LevelTwoBlock != None:
+        LevelTwoBlock.destroy()
+    if LevelThreeBlock != None:
+        LevelThreeBlock.destroy()
+    
     
     def on_b_pressed():
         global canDoubleJump, isDoubleJump
@@ -151,7 +219,7 @@ def FirstLevel():
     controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
 
 def update_score():
-    global score_label, score_sprite
+    global score_label, score_sprite, score
     if score_label is None:
         score_label = textsprite.create(str(score), 3, 6) # el 3 (fondo) y el 6(fuente) cambian colores
         score_label.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
@@ -182,7 +250,7 @@ def create_enemy():
     Mago = sprites.create(assets.image("""
         Mago
     """), SpriteKind.enemy)
-    Mago.set_position(260, 180)
+    Mago.set_position(800, 50)
     Mago.ay = 200
 
     # Configurar el comportamiento del enemigo
@@ -275,7 +343,7 @@ def create_skull():
     Skull = sprites.create(assets.image("""
         Skull
     """), SpriteKind.enemy)
-    Skull.set_position(400, 150)  # Posición inicial del enemigo
+    Skull.set_position(1350, 50)  # Posición inicial del enemigo
     Skull.ay = 200  # Gravedad para mantener al enemigo en el suelo
 
     # Configurar patrullaje
@@ -575,6 +643,7 @@ def on_on_overlap(sprite, otherSprite):
         if controller.A.is_pressed():
             otherSprite.destroy()
             effects.clear_particles(otherSprite)
+            SecondLevel()
     elif otherSprite == LevelThree:
         EON.say_text("Level Three", 100, False)
         if controller.A.is_pressed():

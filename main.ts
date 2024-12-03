@@ -9,7 +9,7 @@ namespace SpriteKind {
     export const portal = SpriteKind.create()
 }
 
-let levelsPass = [true, false, false]
+let levelsPass = [true, true, false]
 function play() {
     
     RecPlay = sprites.create(assets.image`
@@ -112,7 +112,8 @@ function FirstLevel() {
                 Portal
             `, SpriteKind.portal)
     Portal.z = 1
-    Portal.setPosition(450, 140)
+    Portal.setPosition(1950, 140)
+    Portal.ay = 200
     Soul.setPosition(80, 160)
     DoubleJump.setPosition(100, 150)
     DoubleJump2.setPosition(60, 120)
@@ -130,9 +131,9 @@ function FirstLevel() {
                 SceneOne
     `)
     tiles.setCurrentTilemap(tilemap`
-        Level1
+        nivel1
     `)
-    tiles.placeOnTile(EON, tiles.getTileLocation(0, 11))
+    tiles.placeOnTile(EON, tiles.getTileLocation(2, 8))
     if (LevelTwo != null) {
         LevelTwo.destroy()
     }
@@ -141,10 +142,91 @@ function FirstLevel() {
         LevelThree.destroy()
     }
     
-    LevelTwoBlock.destroy()
-    LevelThreeBlock.destroy()
+    if (LevelTwoBlock != null) {
+        LevelTwoBlock.destroy()
+    }
+    
+    if (LevelThreeBlock != null) {
+        LevelThreeBlock.destroy()
+    }
+    
     create_enemy()
     create_skull()
+    controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
+        
+        if (EON.isHittingTile(CollisionDirection.Bottom)) {
+            EON.vy = -150
+            canDoubleJump = true
+        } else if (canDoubleJump && isDoubleJump) {
+            EON.vy = -150
+            canDoubleJump = false
+        }
+        
+    })
+    controller.up.onEvent(ControllerButtonEvent.Pressed, function on_up_pressed() {
+        
+        if (EON.isHittingTile(CollisionDirection.Bottom)) {
+            EON.vy = -150
+        } else if (canDoubleJump && isDoubleJump) {
+            EON.vy = -150
+            canDoubleJump = false
+        }
+        
+    })
+}
+
+function SecondLevel() {
+    
+    memoryScore = score
+    update_score()
+    create_hearts()
+    Soul = sprites.create(assets.image`
+            SoulStatic
+        `, SpriteKind.soul)
+    DoubleJump = sprites.create(assets.image`
+            DoubleJump
+        `, SpriteKind.powerup)
+    MaxStrenght = sprites.create(assets.image`
+            MaxStrenght
+        `, SpriteKind.powerup)
+    Portal = sprites.create(assets.image`Portal`, SpriteKind.portal)
+    Portal.z = 1
+    Portal.setPosition(1950, 140)
+    Portal.ay = 200
+    Soul.setPosition(80, 160)
+    DoubleJump.setPosition(100, 150)
+    MaxStrenght.setPosition(140, 150)
+    animation.runImageAnimation(Soul, soulMovement, 200, true)
+    animation.runImageAnimation(DoubleJump, jumpMovement, 200, true)
+    animation.runImageAnimation(MaxStrenght, strenghtMovement, 200, true)
+    animation.runImageAnimation(Portal, PortalAnim, 200, true)
+    EON.ay = 300
+    EON.setBounceOnWall(false)
+    controller.moveSprite(EON, 100, 0)
+    scene.cameraFollowSprite(EON)
+    scene.setBackgroundImage(assets.image`
+            SceneOne
+    `)
+    tiles.setCurrentTilemap(tilemap`
+        nivel2
+    `)
+    tiles.placeOnTile(EON, tiles.getTileLocation(2, 8))
+    if (LevelOne != null) {
+        LevelOne.destroy()
+    }
+    
+    if (LevelThree != null) {
+        LevelThree.destroy()
+    }
+    
+    if (LevelTwoBlock != null) {
+        LevelTwoBlock.destroy()
+    }
+    
+    if (LevelThreeBlock != null) {
+        LevelThreeBlock.destroy()
+    }
+    
     controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
         
         if (EON.isHittingTile(CollisionDirection.Bottom)) {
@@ -203,7 +285,7 @@ function create_enemy() {
     Mago = sprites.create(assets.image`
         Mago
     `, SpriteKind.enemy)
-    Mago.setPosition(260, 180)
+    Mago.setPosition(800, 50)
     Mago.ay = 200
     //  Configurar el comportamiento del enemigo
     //  Vuelve al modo patrulla si el jugador se aleja
@@ -327,7 +409,7 @@ function create_skull() {
     Skull = sprites.create(assets.image`
         Skull
     `, SpriteKind.enemy)
-    Skull.setPosition(400, 150)
+    Skull.setPosition(1350, 50)
     //  Posición inicial del enemigo
     Skull.ay = 200
     //  Gravedad para mantener al enemigo en el suelo
@@ -685,6 +767,7 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.level, function on_on_overlap(sprit
         if (controller.A.isPressed()) {
             otherSprite.destroy()
             effects.clearParticles(otherSprite)
+            SecondLevel()
         }
         
     } else if (otherSprite == LevelThree) {
