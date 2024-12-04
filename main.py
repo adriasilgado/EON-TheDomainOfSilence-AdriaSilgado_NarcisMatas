@@ -8,7 +8,7 @@ class SpriteKind:
     projectile = SpriteKind.create()
     UI = SpriteKind.create()
     portal = SpriteKind.create()
-levelsPass = [True, True, False]
+levelsPass = [True, False, False]
 def play():
     global RecPlay
     RecPlay = sprites.create(assets.image("""
@@ -80,20 +80,30 @@ def sceneOne():
         DialogLayout.BOTTOM)
     sceneTwo()
 def FirstLevel():
-    global EON, Soul, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, DoubleJump2, isDoubleJump, isFirstLevel, Portal, memoryScore, score
+    global EON, LevelOne, LevelTwo, LevelThree, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, isDoubleJump, isLevel, Portal, memoryScore, score, Soul, Soul2, Soul3, Soul4, Soul5, whatLevel
+    whatLevel = 1
     memoryScore = score
-    isFirstLevel = True
+    isLevel = True
     update_score()
     create_hearts()
     Soul = sprites.create(assets.image("""
             SoulStatic
         """), SpriteKind.soul)
+    Soul2 = sprites.create(assets.image("""
+            SoulStatic
+        """), SpriteKind.soul)
+    Soul3 = sprites.create(assets.image("""
+                SoulStatic
+            """), SpriteKind.soul)
+    Soul4 = sprites.create(assets.image("""
+                SoulStatic
+            """), SpriteKind.soul)
+    Soul5 = sprites.create(assets.image("""
+                    SoulStatic
+                """), SpriteKind.soul)                
     DoubleJump = sprites.create(assets.image("""
             DoubleJump
         """), SpriteKind.powerup)
-    DoubleJump2 = sprites.create(assets.image("""
-                DoubleJump
-            """), SpriteKind.powerup)
     MaxStrenght = sprites.create(assets.image("""
             MaxStrenght
         """), SpriteKind.powerup)
@@ -104,12 +114,18 @@ def FirstLevel():
     Portal.set_position(1950, 140)
     Portal.ay = 200
     Soul.set_position(80, 160)
+    Soul2.set_position(100, 160)
+    Soul3.set_position(120, 160)
+    Soul4.set_position(140, 160)
+    Soul5.set_position(160, 160)
     DoubleJump.set_position(100, 150)
-    DoubleJump2.set_position(60, 120)
     MaxStrenght.set_position(140, 150)
     animation.run_image_animation(Soul, soulMovement, 200, True)
+    animation.run_image_animation(Soul2, soulMovement, 200, True)
+    animation.run_image_animation(Soul3, soulMovement, 200, True)
+    animation.run_image_animation(Soul4, soulMovement, 200, True)
+    animation.run_image_animation(Soul5, soulMovement, 200, True)
     animation.run_image_animation(DoubleJump, jumpMovement, 200, True)
-    animation.run_image_animation(DoubleJump2, jumpMovement, 200, True)
     animation.run_image_animation(MaxStrenght, strenghtMovement, 200, True)
     animation.run_image_animation(Portal, PortalAnim, 200, True)
     EON.ay = 300
@@ -117,12 +133,14 @@ def FirstLevel():
     controller.move_sprite(EON, 100, 0)
     scene.camera_follow_sprite(EON)
     scene.set_background_image(assets.image("""
-                SceneOne
+            Back
     """))
     tiles.set_current_tilemap(tilemap("""
         nivel1
     """))
     tiles.place_on_tile(EON, tiles.get_tile_location(2, 8))
+    if LevelOne != None:
+        LevelOne.destroy()
     if LevelTwo != None:
         LevelTwo.destroy()
     if LevelThree != None:
@@ -131,8 +149,8 @@ def FirstLevel():
         LevelTwoBlock.destroy()
     if LevelThreeBlock != None:
         LevelThreeBlock.destroy()
-    create_enemy()
-    create_skull()
+    create_enemy(800, 50)
+    create_skull(1350, 50)
 
     def on_b_pressed():
         global canDoubleJump, isDoubleJump
@@ -154,13 +172,27 @@ def FirstLevel():
     controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
 
 def SecondLevel():
-    global EON, Soul, LevelOne, LevelThreeBlock, DoubleJump, MaxStrenght, DoubleJump2, isDoubleJump, isFirstLevel, Portal, memoryScore, score
+    global EON, LevelOne, LevelTwo, LevelThree, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, isDoubleJump, isLevel, Portal, memoryScore, score, Soul, Soul2, Soul3, Soul4, Soul5, whatLevel 
+    whatLevel = 2
     memoryScore = score
+    isLevel = True
     update_score()
     create_hearts()
     Soul = sprites.create(assets.image("""
             SoulStatic
         """), SpriteKind.soul)
+    Soul2 = sprites.create(assets.image("""
+                SoulStatic
+            """), SpriteKind.soul)
+    Soul3 = sprites.create(assets.image("""
+                SoulStatic
+            """), SpriteKind.soul)
+    Soul4 = sprites.create(assets.image("""
+                SoulStatic
+            """), SpriteKind.soul)
+    Soul5 = sprites.create(assets.image("""
+                    SoulStatic
+                """), SpriteKind.soul)    
     DoubleJump = sprites.create(assets.image("""
             DoubleJump
         """), SpriteKind.powerup)
@@ -172,9 +204,17 @@ def SecondLevel():
     Portal.set_position(1950, 140)
     Portal.ay = 200
     Soul.set_position(80, 160)
+    Soul2.set_position(100, 160)
+    Soul3.set_position(120, 160)
+    Soul4.set_position(140, 160)
+    Soul5.set_position(160, 160)
     DoubleJump.set_position(100, 150)
     MaxStrenght.set_position(140, 150)
     animation.run_image_animation(Soul, soulMovement, 200, True)
+    animation.run_image_animation(Soul2, soulMovement, 200, True)
+    animation.run_image_animation(Soul3, soulMovement, 200, True)
+    animation.run_image_animation(Soul4, soulMovement, 200, True)
+    animation.run_image_animation(Soul5, soulMovement, 200, True)
     animation.run_image_animation(DoubleJump, jumpMovement, 200, True)
     animation.run_image_animation(MaxStrenght, strenghtMovement, 200, True)
     animation.run_image_animation(Portal, PortalAnim, 200, True)
@@ -183,7 +223,7 @@ def SecondLevel():
     controller.move_sprite(EON, 100, 0)
     scene.camera_follow_sprite(EON)
     scene.set_background_image(assets.image("""
-            SceneOne
+            Back
     """))
     tiles.set_current_tilemap(tilemap("""
         nivel2
@@ -191,12 +231,16 @@ def SecondLevel():
     tiles.place_on_tile(EON, tiles.get_tile_location(2, 8))
     if LevelOne != None:
         LevelOne.destroy()
+    if LevelTwo != None:
+        LevelTwo.destroy()
     if LevelThree != None:
         LevelThree.destroy()
     if LevelTwoBlock != None:
         LevelTwoBlock.destroy()
     if LevelThreeBlock != None:
         LevelThreeBlock.destroy()
+    create_enemy(800, 50)
+    create_skull(1350, 50)    
     
     
     def on_b_pressed():
@@ -217,6 +261,97 @@ def SecondLevel():
             EON.vy = -150
             canDoubleJump = False
     controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
+
+def ThirdLevel():
+    global EON, LevelOne, LevelTwo, LevelThree, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, isDoubleJump, isLevel, Portal, memoryScore, score, Soul, Soul2, Soul3, Soul4, Soul5
+    memoryScore = score
+    isLevel = True
+    update_score()
+    create_hearts()
+    Soul = sprites.create(assets.image("""
+            SoulStatic
+        """), SpriteKind.soul)
+    Soul2 = sprites.create(assets.image("""
+                SoulStatic
+            """), SpriteKind.soul)
+    Soul3 = sprites.create(assets.image("""
+                SoulStatic
+            """), SpriteKind.soul)
+    Soul4 = sprites.create(assets.image("""
+                SoulStatic
+            """), SpriteKind.soul)
+    Soul5 = sprites.create(assets.image("""
+                    SoulStatic
+                """), SpriteKind.soul)
+    DoubleJump = sprites.create(assets.image("""
+            DoubleJump
+        """), SpriteKind.powerup)
+    MaxStrenght = sprites.create(assets.image("""
+            MaxStrenght
+        """), SpriteKind.powerup)
+    Portal = sprites.create(assets.image("""Portal"""), SpriteKind.portal)
+    Portal.z = 1
+    Portal.set_position(1950, 140)
+    Portal.ay = 200
+    Soul.set_position(80, 160)
+    Soul2.set_position(100, 160)
+    Soul3.set_position(120, 160)
+    Soul4.set_position(140, 160)
+    Soul5.set_position(160, 160)
+    DoubleJump.set_position(100, 150)
+    MaxStrenght.set_position(140, 150)
+    animation.run_image_animation(Soul, soulMovement, 200, True)
+    animation.run_image_animation(Soul2, soulMovement, 200, True)
+    animation.run_image_animation(Soul3, soulMovement, 200, True)
+    animation.run_image_animation(Soul4, soulMovement, 200, True)
+    animation.run_image_animation(Soul5, soulMovement, 200, True)
+    animation.run_image_animation(DoubleJump, jumpMovement, 200, True)
+    animation.run_image_animation(MaxStrenght, strenghtMovement, 200, True)
+    animation.run_image_animation(Portal, PortalAnim, 200, True)
+    EON.ay = 300
+    EON.set_bounce_on_wall(False)
+    controller.move_sprite(EON, 100, 0)
+    scene.camera_follow_sprite(EON)
+    scene.set_background_image(assets.image("""
+            Back
+    """))
+    tiles.set_current_tilemap(tilemap("""
+        nivel2
+    """))
+    tiles.place_on_tile(EON, tiles.get_tile_location(2, 8))
+    if LevelOne != None:
+        LevelOne.destroy()
+    if LevelTwo != None:
+        LevelTwo.destroy()
+    if LevelThree != None:
+        LevelThree.destroy()
+    if LevelTwoBlock != None:
+        LevelTwoBlock.destroy()
+    if LevelThreeBlock != None:
+        LevelThreeBlock.destroy()
+    create_enemy(800, 50)
+    create_skull(1350, 50)
+    
+    
+    def on_b_pressed():
+        global canDoubleJump, isDoubleJump
+        if EON.is_hitting_tile(CollisionDirection.BOTTOM):
+            EON.vy = -150
+            canDoubleJump = True
+        elif canDoubleJump and isDoubleJump:
+            EON.vy = -150
+            canDoubleJump = False
+    controller.B.on_event(ControllerButtonEvent.PRESSED, on_b_pressed)
+
+    def on_up_pressed():
+        global canDoubleJump, isDoubleJump
+        if EON.is_hitting_tile(CollisionDirection.BOTTOM):
+            EON.vy = -150
+        elif canDoubleJump and isDoubleJump:
+            EON.vy = -150
+            canDoubleJump = False
+    controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
+
 
 def update_score():
     global score_label, score_sprite, score
@@ -240,7 +375,7 @@ def center_score():
     score_sprite.set_position(center_x, 8)
     score_label.set_position(center_x + score_sprite.width + 5, 11)
 
-def create_enemy():
+def create_enemy(x, y):
     global Mago, is_attacking, patrol_direction, last_shot_time
     is_attacking = False
     patrol_direction = -1
@@ -250,7 +385,7 @@ def create_enemy():
     Mago = sprites.create(assets.image("""
         Mago
     """), SpriteKind.enemy)
-    Mago.set_position(800, 50)
+    Mago.set_position(x, y)
     Mago.ay = 200
 
     # Configurar el comportamiento del enemigo
@@ -310,7 +445,7 @@ def create_enemy():
 
     def on_on_update2():
         global patrol_direction, is_attacking, current_animation
-        if not is_attacking and isFirstLevel:  # Solo anima en patrullaje si no está atacando
+        if not is_attacking and isLevel:  # Solo anima en patrullaje si no está atacando
             if patrol_direction == -1 and current_animation != "MageLeft":
                 animation.run_image_animation(Mago, MageLeft, 1000, True)
                 current_animation = "MageLeft"
@@ -320,8 +455,8 @@ def create_enemy():
     game.on_update(on_on_update2)
 
     def on_on_update3():
-        global patrol_direction, is_attacking, current_animation, isFirstLevel
-        if is_attacking and isFirstLevel:  # Solo anima si está atacando
+        global patrol_direction, is_attacking, current_animation, isLevel
+        if is_attacking and isLevel:  # Solo anima si está atacando
             if (EON.x - Mago.x) < 0 and current_animation != "MageLeftAttack":  # Jugador a la izquierda
                 animation.run_image_animation(Mago, MageLeftAttack, 250, True)
                 current_animation = "MageLeftAttack"
@@ -331,7 +466,7 @@ def create_enemy():
     game.on_update(on_on_update3)
 
 
-def create_skull():
+def create_skull(x, y):
     global Skull, skull_is_attacking, skull_patrol_direction, skull_last_attack_time, skull_current_animation
 
     skull_is_attacking = False
@@ -343,7 +478,7 @@ def create_skull():
     Skull = sprites.create(assets.image("""
         Skull
     """), SpriteKind.enemy)
-    Skull.set_position(1350, 50)  # Posición inicial del enemigo
+    Skull.set_position(x, y)  # Posición inicial del enemigo
     Skull.ay = 200  # Gravedad para mantener al enemigo en el suelo
 
     # Configurar patrullaje
@@ -460,8 +595,8 @@ def check_collision_with_projectile():
 game.on_update(check_collision_with_projectile)
 
 def returnLevelSelector(setScore):
-    global score, patrol_direction, last_shot_time, current_animation, heart_count, hearts, isFirstLevel, score_label, currentAnimationEON, damage_time, is_taking_damage
-    isFirstLevel = False
+    global score, patrol_direction, last_shot_time, current_animation, heart_count, hearts, isLevel, score_label, currentAnimationEON, damage_time, is_taking_damage
+    isLevel = False
     sprites.destroy_all_sprites_of_kind(SpriteKind.EON)
     sprites.destroy_all_sprites_of_kind(SpriteKind.soul)
     sprites.destroy_all_sprites_of_kind(SpriteKind.powerup)
@@ -489,8 +624,11 @@ LevelThree:Sprite = None
 LevelTwoBlock:Sprite = None
 LevelThreeBlock:Sprite = None
 Soul:Sprite = None
+Soul2:Sprite = None
+Soul3:Sprite = None
+Soul4:Sprite = None
+Soul5:Sprite = None
 DoubleJump:Sprite = None
-DoubleJump2:Sprite = None
 MaxStrenght:Sprite = None
 lookLeft: List[Image] = []
 score = 5
@@ -513,7 +651,7 @@ current_animation = ""
 currentAnimationEON = ""
 heart_count = 3
 hearts: List[Sprite] = []
-isFirstLevel = False
+isLevel = False
 projectile:Sprite = None
 is_taking_damage = False
 damage_time = 0
@@ -526,6 +664,7 @@ skull_patrol_direction = 1
 skull_last_attack_time = 0
 skull_current_animation = ""
 skull_live = 2
+whatLevel = 0
 
 scene.set_background_image(assets.image("""
     myImage
@@ -599,7 +738,7 @@ PortalAnim = assets.animation("""
 """)
 
 def on_on_update():
-    global is_taking_damage, damage_time, currentAnimationEON, isFirstLevel, canAttack
+    global is_taking_damage, damage_time, currentAnimationEON, isLevel, canAttack
     print(f"Update - Estado de daño: {is_taking_damage}")
     if is_taking_damage:
         canAttack = False
@@ -614,7 +753,7 @@ def on_on_update():
 
     # Si no está en daño, manejar animaciones normales
 
-    if controller.A.is_pressed() and isFirstLevel:
+    if controller.A.is_pressed() and isLevel:
         if currentAnimationEON == "Left":
             animation.run_image_animation(EON, attackLeft, 50, False)
         elif currentAnimationEON == "Right":
@@ -657,7 +796,7 @@ sprites.on_overlap(SpriteKind.EON, SpriteKind.level, on_on_overlap)
 
 def on_on_overlap2(sprite2, otherSprite2):
     global score
-    if otherSprite2 == Soul:
+    if otherSprite2 == Soul or otherSprite2 == Soul2 or otherSprite2 == Soul3 or otherSprite2 == Soul4 or otherSprite2 == Soul5:
         otherSprite2.destroy()
         score += 1
         update_score()
@@ -665,7 +804,7 @@ sprites.on_overlap(SpriteKind.EON, SpriteKind.soul, on_on_overlap2)
 
 def on_on_overlap3(sprite3, otherSprite3):
     global DJ_time, MS_time, countdown_active_DJ, countdown_active_MS, DJ_label, MS_label, isDoubleJump
-    if otherSprite3 == DoubleJump or otherSprite3 == DoubleJump2:
+    if otherSprite3 == DoubleJump:
         otherSprite3.destroy()
         DJ_label = sprites.create(assets.image("""
                                             DJBar
@@ -689,9 +828,9 @@ def on_on_overlap3(sprite3, otherSprite3):
 sprites.on_overlap(SpriteKind.EON, SpriteKind.powerup, on_on_overlap3)
 
 def on_on_overlap4(sprite4, otherSprite4):
-    global levelsPass, score
+    global levelsPass, score, whatLevel
     if otherSprite4 == Portal and controller.A.is_pressed():
-        levelsPass[1] = True
+        levelsPass[whatLevel] = True
         otherSprite4.destroy()
         returnLevelSelector(score)
 sprites.on_overlap(SpriteKind.EON, SpriteKind.portal, on_on_overlap4)

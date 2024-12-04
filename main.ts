@@ -9,7 +9,7 @@ namespace SpriteKind {
     export const portal = SpriteKind.create()
 }
 
-let levelsPass = [true, true, false]
+let levelsPass = [true, false, false]
 function play() {
     
     RecPlay = sprites.create(assets.image`
@@ -92,19 +92,29 @@ function sceneOne() {
 
 function FirstLevel() {
     
+    whatLevel = 1
     memoryScore = score
-    isFirstLevel = true
+    isLevel = true
     update_score()
     create_hearts()
     Soul = sprites.create(assets.image`
             SoulStatic
         `, SpriteKind.soul)
+    Soul2 = sprites.create(assets.image`
+            SoulStatic
+        `, SpriteKind.soul)
+    Soul3 = sprites.create(assets.image`
+                SoulStatic
+            `, SpriteKind.soul)
+    Soul4 = sprites.create(assets.image`
+                SoulStatic
+            `, SpriteKind.soul)
+    Soul5 = sprites.create(assets.image`
+                    SoulStatic
+                `, SpriteKind.soul)
     DoubleJump = sprites.create(assets.image`
             DoubleJump
         `, SpriteKind.powerup)
-    DoubleJump2 = sprites.create(assets.image`
-                DoubleJump
-            `, SpriteKind.powerup)
     MaxStrenght = sprites.create(assets.image`
             MaxStrenght
         `, SpriteKind.powerup)
@@ -115,12 +125,18 @@ function FirstLevel() {
     Portal.setPosition(1950, 140)
     Portal.ay = 200
     Soul.setPosition(80, 160)
+    Soul2.setPosition(100, 160)
+    Soul3.setPosition(120, 160)
+    Soul4.setPosition(140, 160)
+    Soul5.setPosition(160, 160)
     DoubleJump.setPosition(100, 150)
-    DoubleJump2.setPosition(60, 120)
     MaxStrenght.setPosition(140, 150)
     animation.runImageAnimation(Soul, soulMovement, 200, true)
+    animation.runImageAnimation(Soul2, soulMovement, 200, true)
+    animation.runImageAnimation(Soul3, soulMovement, 200, true)
+    animation.runImageAnimation(Soul4, soulMovement, 200, true)
+    animation.runImageAnimation(Soul5, soulMovement, 200, true)
     animation.runImageAnimation(DoubleJump, jumpMovement, 200, true)
-    animation.runImageAnimation(DoubleJump2, jumpMovement, 200, true)
     animation.runImageAnimation(MaxStrenght, strenghtMovement, 200, true)
     animation.runImageAnimation(Portal, PortalAnim, 200, true)
     EON.ay = 300
@@ -128,12 +144,16 @@ function FirstLevel() {
     controller.moveSprite(EON, 100, 0)
     scene.cameraFollowSprite(EON)
     scene.setBackgroundImage(assets.image`
-                SceneOne
+            Back
     `)
     tiles.setCurrentTilemap(tilemap`
         nivel1
     `)
     tiles.placeOnTile(EON, tiles.getTileLocation(2, 8))
+    if (LevelOne != null) {
+        LevelOne.destroy()
+    }
+    
     if (LevelTwo != null) {
         LevelTwo.destroy()
     }
@@ -150,8 +170,8 @@ function FirstLevel() {
         LevelThreeBlock.destroy()
     }
     
-    create_enemy()
-    create_skull()
+    create_enemy(800, 50)
+    create_skull(1350, 50)
     controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
         
         if (EON.isHittingTile(CollisionDirection.Bottom)) {
@@ -177,12 +197,26 @@ function FirstLevel() {
 
 function SecondLevel() {
     
+    whatLevel = 2
     memoryScore = score
+    isLevel = true
     update_score()
     create_hearts()
     Soul = sprites.create(assets.image`
             SoulStatic
         `, SpriteKind.soul)
+    Soul2 = sprites.create(assets.image`
+                SoulStatic
+            `, SpriteKind.soul)
+    Soul3 = sprites.create(assets.image`
+                SoulStatic
+            `, SpriteKind.soul)
+    Soul4 = sprites.create(assets.image`
+                SoulStatic
+            `, SpriteKind.soul)
+    Soul5 = sprites.create(assets.image`
+                    SoulStatic
+                `, SpriteKind.soul)
     DoubleJump = sprites.create(assets.image`
             DoubleJump
         `, SpriteKind.powerup)
@@ -194,9 +228,17 @@ function SecondLevel() {
     Portal.setPosition(1950, 140)
     Portal.ay = 200
     Soul.setPosition(80, 160)
+    Soul2.setPosition(100, 160)
+    Soul3.setPosition(120, 160)
+    Soul4.setPosition(140, 160)
+    Soul5.setPosition(160, 160)
     DoubleJump.setPosition(100, 150)
     MaxStrenght.setPosition(140, 150)
     animation.runImageAnimation(Soul, soulMovement, 200, true)
+    animation.runImageAnimation(Soul2, soulMovement, 200, true)
+    animation.runImageAnimation(Soul3, soulMovement, 200, true)
+    animation.runImageAnimation(Soul4, soulMovement, 200, true)
+    animation.runImageAnimation(Soul5, soulMovement, 200, true)
     animation.runImageAnimation(DoubleJump, jumpMovement, 200, true)
     animation.runImageAnimation(MaxStrenght, strenghtMovement, 200, true)
     animation.runImageAnimation(Portal, PortalAnim, 200, true)
@@ -205,7 +247,7 @@ function SecondLevel() {
     controller.moveSprite(EON, 100, 0)
     scene.cameraFollowSprite(EON)
     scene.setBackgroundImage(assets.image`
-            SceneOne
+            Back
     `)
     tiles.setCurrentTilemap(tilemap`
         nivel2
@@ -213,6 +255,10 @@ function SecondLevel() {
     tiles.placeOnTile(EON, tiles.getTileLocation(2, 8))
     if (LevelOne != null) {
         LevelOne.destroy()
+    }
+    
+    if (LevelTwo != null) {
+        LevelTwo.destroy()
     }
     
     if (LevelThree != null) {
@@ -227,6 +273,110 @@ function SecondLevel() {
         LevelThreeBlock.destroy()
     }
     
+    create_enemy(800, 50)
+    create_skull(1350, 50)
+    controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
+        
+        if (EON.isHittingTile(CollisionDirection.Bottom)) {
+            EON.vy = -150
+            canDoubleJump = true
+        } else if (canDoubleJump && isDoubleJump) {
+            EON.vy = -150
+            canDoubleJump = false
+        }
+        
+    })
+    controller.up.onEvent(ControllerButtonEvent.Pressed, function on_up_pressed() {
+        
+        if (EON.isHittingTile(CollisionDirection.Bottom)) {
+            EON.vy = -150
+        } else if (canDoubleJump && isDoubleJump) {
+            EON.vy = -150
+            canDoubleJump = false
+        }
+        
+    })
+}
+
+function ThirdLevel() {
+    
+    memoryScore = score
+    isLevel = true
+    update_score()
+    create_hearts()
+    Soul = sprites.create(assets.image`
+            SoulStatic
+        `, SpriteKind.soul)
+    Soul2 = sprites.create(assets.image`
+                SoulStatic
+            `, SpriteKind.soul)
+    Soul3 = sprites.create(assets.image`
+                SoulStatic
+            `, SpriteKind.soul)
+    Soul4 = sprites.create(assets.image`
+                SoulStatic
+            `, SpriteKind.soul)
+    Soul5 = sprites.create(assets.image`
+                    SoulStatic
+                `, SpriteKind.soul)
+    DoubleJump = sprites.create(assets.image`
+            DoubleJump
+        `, SpriteKind.powerup)
+    MaxStrenght = sprites.create(assets.image`
+            MaxStrenght
+        `, SpriteKind.powerup)
+    Portal = sprites.create(assets.image`Portal`, SpriteKind.portal)
+    Portal.z = 1
+    Portal.setPosition(1950, 140)
+    Portal.ay = 200
+    Soul.setPosition(80, 160)
+    Soul2.setPosition(100, 160)
+    Soul3.setPosition(120, 160)
+    Soul4.setPosition(140, 160)
+    Soul5.setPosition(160, 160)
+    DoubleJump.setPosition(100, 150)
+    MaxStrenght.setPosition(140, 150)
+    animation.runImageAnimation(Soul, soulMovement, 200, true)
+    animation.runImageAnimation(Soul2, soulMovement, 200, true)
+    animation.runImageAnimation(Soul3, soulMovement, 200, true)
+    animation.runImageAnimation(Soul4, soulMovement, 200, true)
+    animation.runImageAnimation(Soul5, soulMovement, 200, true)
+    animation.runImageAnimation(DoubleJump, jumpMovement, 200, true)
+    animation.runImageAnimation(MaxStrenght, strenghtMovement, 200, true)
+    animation.runImageAnimation(Portal, PortalAnim, 200, true)
+    EON.ay = 300
+    EON.setBounceOnWall(false)
+    controller.moveSprite(EON, 100, 0)
+    scene.cameraFollowSprite(EON)
+    scene.setBackgroundImage(assets.image`
+            Back
+    `)
+    tiles.setCurrentTilemap(tilemap`
+        nivel2
+    `)
+    tiles.placeOnTile(EON, tiles.getTileLocation(2, 8))
+    if (LevelOne != null) {
+        LevelOne.destroy()
+    }
+    
+    if (LevelTwo != null) {
+        LevelTwo.destroy()
+    }
+    
+    if (LevelThree != null) {
+        LevelThree.destroy()
+    }
+    
+    if (LevelTwoBlock != null) {
+        LevelTwoBlock.destroy()
+    }
+    
+    if (LevelThreeBlock != null) {
+        LevelThreeBlock.destroy()
+    }
+    
+    create_enemy(800, 50)
+    create_skull(1350, 50)
     controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
         
         if (EON.isHittingTile(CollisionDirection.Bottom)) {
@@ -275,7 +425,7 @@ function center_score() {
     score_label.setPosition(center_x + score_sprite.width + 5, 11)
 }
 
-function create_enemy() {
+function create_enemy(x: number, y: number) {
     
     is_attacking = false
     patrol_direction = -1
@@ -285,7 +435,7 @@ function create_enemy() {
     Mago = sprites.create(assets.image`
         Mago
     `, SpriteKind.enemy)
-    Mago.setPosition(800, 50)
+    Mago.setPosition(x, y)
     Mago.ay = 200
     //  Configurar el comportamiento del enemigo
     //  Vuelve al modo patrulla si el jugador se aleja
@@ -366,7 +516,7 @@ function create_enemy() {
     })
     game.onUpdate(function on_on_update2() {
         
-        if (!is_attacking && isFirstLevel) {
+        if (!is_attacking && isLevel) {
             //  Solo anima en patrullaje si no está atacando
             if (patrol_direction == -1 && current_animation != "MageLeft") {
                 animation.runImageAnimation(Mago, MageLeft, 1000, true)
@@ -381,7 +531,7 @@ function create_enemy() {
     })
     game.onUpdate(function on_on_update3() {
         
-        if (is_attacking && isFirstLevel) {
+        if (is_attacking && isLevel) {
             //  Solo anima si está atacando
             if (EON.x - Mago.x < 0 && current_animation != "MageLeftAttack") {
                 //  Jugador a la izquierda
@@ -398,7 +548,7 @@ function create_enemy() {
     })
 }
 
-function create_skull() {
+function create_skull(x: number, y: number) {
     
     skull_is_attacking = false
     skull_patrol_direction = -1
@@ -409,7 +559,7 @@ function create_skull() {
     Skull = sprites.create(assets.image`
         Skull
     `, SpriteKind.enemy)
-    Skull.setPosition(1350, 50)
+    Skull.setPosition(x, y)
     //  Posición inicial del enemigo
     Skull.ay = 200
     //  Gravedad para mantener al enemigo en el suelo
@@ -574,7 +724,7 @@ game.onUpdate(function check_collision_with_projectile() {
 })
 function returnLevelSelector(setScore: number) {
     
-    isFirstLevel = false
+    isLevel = false
     sprites.destroyAllSpritesOfKind(SpriteKind.EON)
     sprites.destroyAllSpritesOfKind(SpriteKind.soul)
     sprites.destroyAllSpritesOfKind(SpriteKind.powerup)
@@ -603,8 +753,11 @@ let LevelThree : Sprite = null
 let LevelTwoBlock : Sprite = null
 let LevelThreeBlock : Sprite = null
 let Soul : Sprite = null
+let Soul2 : Sprite = null
+let Soul3 : Sprite = null
+let Soul4 : Sprite = null
+let Soul5 : Sprite = null
 let DoubleJump : Sprite = null
-let DoubleJump2 : Sprite = null
 let MaxStrenght : Sprite = null
 let lookLeft : Image[] = []
 let score = 5
@@ -627,7 +780,7 @@ let current_animation = ""
 let currentAnimationEON = ""
 let heart_count = 3
 let hearts : Sprite[] = []
-let isFirstLevel = false
+let isLevel = false
 let projectile : Sprite = null
 let is_taking_damage = false
 let damage_time = 0
@@ -640,6 +793,7 @@ let skull_patrol_direction = 1
 let skull_last_attack_time = 0
 let skull_current_animation = ""
 let skull_live = 2
+let whatLevel = 0
 scene.setBackgroundImage(assets.image`
     myImage
 `)
@@ -731,7 +885,7 @@ game.onUpdate(function on_on_update() {
     }
     
     //  Si no está en daño, manejar animaciones normales
-    if (controller.A.isPressed() && isFirstLevel) {
+    if (controller.A.isPressed() && isLevel) {
         if (currentAnimationEON == "Left") {
             animation.runImageAnimation(EON, attackLeft, 50, false)
         } else if (currentAnimationEON == "Right") {
@@ -788,7 +942,7 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.level, function on_on_overlap(sprit
 })
 sprites.onOverlap(SpriteKind.EON, SpriteKind.soul, function on_on_overlap2(sprite2: Sprite, otherSprite2: Sprite) {
     
-    if (otherSprite2 == Soul) {
+    if (otherSprite2 == Soul || otherSprite2 == Soul2 || otherSprite2 == Soul3 || otherSprite2 == Soul4 || otherSprite2 == Soul5) {
         otherSprite2.destroy()
         score += 1
         update_score()
@@ -797,7 +951,7 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.soul, function on_on_overlap2(sprit
 })
 sprites.onOverlap(SpriteKind.EON, SpriteKind.powerup, function on_on_overlap3(sprite3: Sprite, otherSprite3: Sprite) {
     
-    if (otherSprite3 == DoubleJump || otherSprite3 == DoubleJump2) {
+    if (otherSprite3 == DoubleJump) {
         otherSprite3.destroy()
         DJ_label = sprites.create(assets.image`
                                             DJBar
@@ -824,7 +978,7 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.powerup, function on_on_overlap3(sp
 sprites.onOverlap(SpriteKind.EON, SpriteKind.portal, function on_on_overlap4(sprite4: Sprite, otherSprite4: Sprite) {
     
     if (otherSprite4 == Portal && controller.A.isPressed()) {
-        levelsPass[1] = true
+        levelsPass[whatLevel] = true
         otherSprite4.destroy()
         returnLevelSelector(score)
     }
