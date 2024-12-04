@@ -1,3 +1,4 @@
+#Clase per controlar els tipus d'objectes
 @namespace
 class SpriteKind:
     level = SpriteKind.create()
@@ -9,7 +10,8 @@ class SpriteKind:
     UI = SpriteKind.create()
     portal = SpriteKind.create()
     boss = SpriteKind.create()
-levelsPass = [True, False, True]
+levelsPass = [True, False, False]
+#MAIN
 def play():
     global RecPlay
     RecPlay = sprites.create(assets.image("""
@@ -23,6 +25,7 @@ def play():
         pause(250)
     RecPlay.set_flag(SpriteFlag.INVISIBLE, True)
     sceneOne()
+#Pantalla per escollir nivell
 def levelSelector():
     global EON, LevelOne, LevelTwo, LevelThree, LevelTwoBlock, levelsPass, LevelThreeBlock
     tiles.set_current_tilemap(tilemap("""
@@ -66,6 +69,7 @@ def levelSelector():
     EON.set_stay_in_screen(True)
     EON.z = 100
     controller.move_sprite(EON)
+#Escenes amb lore
 def sceneTwo():
     scene.set_background_image(assets.image("""
         SceneTwo
@@ -80,6 +84,8 @@ def sceneOne():
     game.show_long_text("Després de la victoria a The Land Of The Forgotten, EON pren camí en una nova aventura, un regne on els germans del silenci 'Echo' i 'Quietus' tenen el control total, The Domain Of Silence",
         DialogLayout.BOTTOM)
     sceneTwo()
+#NIVELLS
+#Funcions amb la generació dels 3 nivells
 def FirstLevel():
     global EON, LevelOne, LevelTwo, LevelThree, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, isDoubleJump, isLevel, Portal, memoryScore, score, Soul, Soul2, Soul3, Soul4, Soul5, whatLevel
     whatLevel = 1
@@ -264,7 +270,8 @@ def SecondLevel():
     controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
 
 def ThirdLevel():
-    global EON, LevelOne, LevelTwo, LevelThree, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, isDoubleJump, isLevel, Portal, memoryScore, score, Soul, Soul2, Soul3, Soul4, Soul5
+    global EON, LevelOne, LevelTwo, LevelThree, LevelTwoBlock, LevelThreeBlock, DoubleJump, MaxStrenght, isDoubleJump, isLevel, Portal, memoryScore, score, Soul, Soul2, Soul3, Soul4, Soul5, whatLevel
+    whatLevel = 3
     memoryScore = score
     isLevel = True
     update_score()
@@ -292,7 +299,6 @@ def ThirdLevel():
         """), SpriteKind.powerup)
     Portal = sprites.create(assets.image("""Portal"""), SpriteKind.portal)
     Portal.z = 1
-    #NO TOQUES ESTA POSICION DEL PORTAL
     Portal.set_position(1950, 140)
     Portal.ay = 200
     Soul.set_position(304, 168)
@@ -361,46 +367,41 @@ def ThirdLevel():
             returnLevelSelector(memoryScore)
     game.on_update(endMap)
 
-
+#Funció per crear el boss i controlar estats i animacions
 def create_boss():
     global Boss, boss_health, boss_is_attacking, boss_last_attack_time, boss_current_animation
 
-    # Inicialización de variables globales
     boss_health = 10
     boss_is_attacking = False
     boss_last_attack_time = 0
     boss_current_animation = ""
 
-    # Crear el sprite del jefe
     Boss = sprites.create(assets.image("""
         Boss1
     """), SpriteKind.boss)
-    Boss.set_position(1800, 140)  # Posición inicial
-    Boss.ay = 200  # Gravedad aplicada al jefe
+    Boss.set_position(1800, 140) 
+    Boss.ay = 200 
 
-    # Establecer hitbox fija
     Boss.set_hitbox()
 
-    # Animación por defecto: IdleLeft
     animation.run_image_animation(Boss, BossIdleLeft, 1000, True)
     boss_current_animation = "IdleLeft"
 
-    # Detectar y perseguir a EON
     def boss_behaviour():
         global boss_is_attacking, boss_current_animation, boss_last_attack_time
 
-        distance_to_player = Math.abs(Boss.x - EON.x)  # Distancia horizontal entre Boss y EON
+        distance_to_player = Math.abs(Boss.x - EON.x)  
 
-        if distance_to_player > 100:  # Zona de patrullaje (fuera de la detección de EON)
+        if distance_to_player > 100: 
             boss_is_attacking = False
-            Boss.vx = -30  # Velocidad baja para patrullaje
+            Boss.vx = -30  
             if boss_current_animation != "RunLeft":
                 animation.run_image_animation(Boss, BossRunLeft, 500, True)
                 boss_current_animation = "RunLeft"
 
-        elif 30 < distance_to_player <= 100:  # Zona de detección (persecución)
+        elif 30 < distance_to_player <= 100:  
             boss_is_attacking = False
-            Boss.vx = 60 if Boss.x < EON.x else -60  # Aumentar velocidad en persecución
+            Boss.vx = 60 if Boss.x < EON.x else -60  
             if Boss.vx > 0 and boss_current_animation != "RunRight":
                 animation.run_image_animation(Boss, BossRunRight, 500, True)
                 boss_current_animation = "RunRight"
@@ -408,15 +409,13 @@ def create_boss():
                 animation.run_image_animation(Boss, BossRunLeft, 500, True)
                 boss_current_animation = "RunLeft"
 
-        elif distance_to_player <= 30:  # Zona de ataque
+        elif distance_to_player <= 30:  
             boss_is_attacking = True
-            Boss.vx = 0  # El jefe se detiene para atacar
+            Boss.vx = 0  
             current_time = game.runtime()
-            if current_time - boss_last_attack_time > 1000:  # Delay entre ataques (1 segundo)
-                # Mantener al jefe en la posición vertical actual
-                Boss.y = 155  # Ajustar según el tamaño del sprite
+            if current_time - boss_last_attack_time > 1000:  
+                Boss.y = 155 
 
-                # Configurar animación de ataque
                 if Boss.x < EON.x and boss_current_animation != "AttackRight":
                     animation.run_image_animation(Boss, BossAttackRight, 300, True)
                     boss_current_animation = "AttackRight"
@@ -424,14 +423,12 @@ def create_boss():
                     animation.run_image_animation(Boss, BossAttackLeft, 300, True)
                     boss_current_animation = "AttackLeft"
 
-                # Aplicar daño a EON si está cerca
                 if Boss.overlaps_with(EON):
                     lose_heart()
                 boss_last_attack_time = current_time
 
-    # Registrar la función para ejecutarse en cada actualización
     game.on_update(boss_behaviour)
-
+#Funcio per mostrar score personalitzat i posar-ho al centre
 def update_score():
     global score_label, score_sprite, score
     if score_label is None:
@@ -454,62 +451,59 @@ def center_score():
     score_sprite.set_position(center_x, 8)
     score_label.set_position(center_x + score_sprite.width + 5, 11)
 
+#Funcio per crear al mag i controlar stats i animacions
 def create_enemy(x, y):
     global Mago, is_attacking, patrol_direction, last_shot_time
     is_attacking = False
     patrol_direction = -1
-    last_shot_time = game.runtime()  # 1 para la derecha, -1 para la izquierda
+    last_shot_time = game.runtime()
 
-    # Crear el enemigo
     Mago = sprites.create(assets.image("""
         Mago
     """), SpriteKind.enemy)
     Mago.set_position(x, y)
     Mago.ay = 200
 
-    # Configurar el comportamiento del enemigo
     def patrol():
         global patrol_direction
-        if not is_attacking:  # Solo patrulla si no está atacando
-            Mago.vx = patrol_direction * 50  # Velocidad de patrullaje
+        if not is_attacking: 
+            Mago.vx = patrol_direction * 50 
             if tiles.tile_at_location_equals(Mago.tilemap_location(), assets.tile("""
-                            PatrolStopMago
+                            PatrolStop
                         """)):
-                patrol_direction *= -1  # Cambiar dirección
+                patrol_direction *= -1 
                 Mago.vx = patrol_direction * 50
                 
 
     def detect_player():
         global is_attacking
-        distance_to_player = Math.abs(Mago.x - EON.x)  # Distancia horizontal
-        if distance_to_player < 80:  # Detecta al jugador si está cerca
+        distance_to_player = Math.abs(Mago.x - EON.x) 
+        if distance_to_player < 80: 
             is_attacking = True
             attack_player()
         else:
-            is_attacking = False  # Vuelve al modo patrulla si el jugador se aleja
+            is_attacking = False 
 
     def attack_player():
         global last_shot_time, current_animation, projectile, isDead, score
         if is_attacking:
-            Mago.vx = 0  # Detener el movimiento
-            current_time = game.runtime()  # Tiempo actual del juego
-            if current_time - last_shot_time > 1000 and current_animation != "" and not isDead:  # Dispara cada 1 segundo
-                # Crear un proyectil
+            Mago.vx = 0  
+            current_time = game.runtime() 
+            if current_time - last_shot_time > 1000 and current_animation != "" and not isDead:
                 projectile = sprites.create_projectile_from_sprite(
                     assets.image("""
                         Bola
-                    """),  # Imagen del proyectil
-                    Mago,  # El enemigo dispara
-                    (EON.x - Mago.x) / abs(EON.x - Mago.x) * 100,  # Velocidad en X dirigida al jugador
-                    0  # Velocidad en Y (horizontal)
+                    """),  
+                    Mago,  
+                    (EON.x - Mago.x) / abs(EON.x - Mago.x) * 100, 
+                    0 
                 )
                 projectile.set_kind(SpriteKind.projectile)
-                if (EON.x - Mago.x) < 0:  # Jugador a la izquierda
+                if (EON.x - Mago.x) < 0: 
                     animation.run_image_animation(projectile, BallLeft, 250, True)
-                else:  # Jugador a la derecha
+                else: 
                     animation.run_image_animation(projectile, BallRight, 250, True)
                 last_shot_time = current_time
-    # Comportamiento continuo
     game.on_update(patrol)
     game.on_update(detect_player)
 
@@ -523,7 +517,7 @@ def create_enemy(x, y):
 
     def on_on_update2():
         global patrol_direction, is_attacking, current_animation
-        if not is_attacking and isLevel:  # Solo anima en patrullaje si no está atacando
+        if not is_attacking and isLevel: 
             if patrol_direction == -1 and current_animation != "MageLeft":
                 animation.run_image_animation(Mago, MageLeft, 1000, True)
                 current_animation = "MageLeft"
@@ -534,80 +528,72 @@ def create_enemy(x, y):
 
     def on_on_update3():
         global patrol_direction, is_attacking, current_animation, isLevel
-        if is_attacking and isLevel:  # Solo anima si está atacando
-            if (EON.x - Mago.x) < 0 and current_animation != "MageLeftAttack":  # Jugador a la izquierda
+        if is_attacking and isLevel:  
+            if (EON.x - Mago.x) < 0 and current_animation != "MageLeftAttack":  
                 animation.run_image_animation(Mago, MageLeftAttack, 250, True)
                 current_animation = "MageLeftAttack"
-            elif (EON.x - Mago.x) > 0 and current_animation != "MageRightAttack":  # Jugador a la derecha
+            elif (EON.x - Mago.x) > 0 and current_animation != "MageRightAttack": 
                 animation.run_image_animation(Mago, MageRightAttack, 250, True)
                 current_animation = "MageRightAttack"
     game.on_update(on_on_update3)
 
-
+#Funció per crear enemic skull, controlant stats i animacions
 def create_skull(x, y):
     global Skull, skull_is_attacking, skull_patrol_direction, skull_last_attack_time, skull_current_animation
 
     skull_is_attacking = False
-    skull_patrol_direction = -1  # Dirección inicial de patrullaje (-1: izquierda, 1: derecha)
+    skull_patrol_direction = -1 
     skull_last_attack_time = game.runtime()
     skull_current_animation = ""
 
-    # Crear el enemigo Skull
     Skull = sprites.create(assets.image("""
         Skull
     """), SpriteKind.enemy)
-    Skull.set_position(x, y)  # Posición inicial del enemigo
-    Skull.ay = 200  # Gravedad para mantener al enemigo en el suelo
+    Skull.set_position(x, y) 
+    Skull.ay = 200 
 
-    # Configurar patrullaje
     def skull_patrol():
         global skull_patrol_direction
-        if not skull_is_attacking:  # Solo patrulla si no está atacando
-            Skull.vx = skull_patrol_direction * 50  # Velocidad de patrullaje
+        if not skull_is_attacking: 
+            Skull.vx = skull_patrol_direction * 50  
 
-            # Detectar si está en un tile de borde y cambiar de dirección
             if tiles.tile_at_location_equals(Skull.tilemap_location(), assets.tile("""
-                PatrolStopMago
+                PatrolStop
             """)):
-                skull_patrol_direction *= -1  # Cambiar dirección
+                skull_patrol_direction *= -1  
                 Skull.vx = skull_patrol_direction * 50
 
-    # Detectar a EON y entrar en modo ataque
     def skull_detect_and_chase():
         global skull_is_attacking
-        distance_to_player = Math.abs(Skull.x - EON.x)  # Distancia horizontal entre Skull y EON
-        if distance_to_player < 50:  # Detecta a EON dentro de un rango
+        distance_to_player = Math.abs(Skull.x - EON.x)  
+        if distance_to_player < 50:  
             skull_is_attacking = True
-        elif distance_to_player > 80:  # Si se aleja mucho, vuelve a patrullar
+        elif distance_to_player > 80:  
             skull_is_attacking = False
 
-        # Si está atacando, perseguir a EON
         if skull_is_attacking:
             Skull.vx = 80 if Skull.x < EON.x else -80
 
-    # Atacar a EON
     def skull_attack_player():
         global skull_last_attack_time, skull_current_animation
-        if skull_is_attacking and Math.abs(Skull.x - EON.x) < 10:  # Si está cerca del jugador
-            Skull.vx = 0  # Detener el movimiento para atacar
+        if skull_is_attacking and Math.abs(Skull.x - EON.x) < 10:  
+            Skull.vx = 0  
             current_time = game.runtime()
-            if current_time - skull_last_attack_time > 1000:  # 1 segundo entre ataques
-                # Determinar la dirección de ataque
-                if Skull.x > EON.x:  # Jugador a la izquierda
+            if current_time - skull_last_attack_time > 1000:  
+                if Skull.x > EON.x:  
                     if skull_current_animation != "SkullLeftAttack":
                         animation.run_image_animation(Skull, SkullLeftAttack, 250, True)
                         skull_current_animation = "SkullLeftAttack"
-                elif Skull.x < EON.x:  # Jugador a la derecha
+                elif Skull.x < EON.x:  
                     if skull_current_animation != "SkullRightAttack":
                         animation.run_image_animation(Skull, SkullRightAttack, 250, True)
                         skull_current_animation = "SkullRightAttack"
 
-                # Aplicar daño si está en contacto con EON
                 if Skull.overlaps_with(EON):
                     lose_heart()
                 skull_last_attack_time = current_time
         else:
-            if skull_is_attacking and Skull.vx != 0:  # Mantener dirección correcta mientras persigue
+            if skull_is_attacking and Skull.vx != 0:  
                 if Skull.vx > 0 and skull_current_animation != "SkullRightAttack":
                     animation.run_image_animation(Skull, SkullRightAttack, 250, True)
                     skull_current_animation = "SkullRightAttack"
@@ -615,10 +601,9 @@ def create_skull(x, y):
                     animation.run_image_animation(Skull, SkullLeftAttack, 250, True)
                     skull_current_animation = "SkullLeftAttack"
 
-    # Animaciones de patrullaje
     def skull_animations():
         global skull_patrol_direction, skull_is_attacking, skull_current_animation
-        if not skull_is_attacking:  # Solo anima en patrullaje si no está atacando
+        if not skull_is_attacking:  
             if skull_patrol_direction == -1 and skull_current_animation != "SkullLeft":
                 animation.run_image_animation(Skull, SkullLeft, 1000, True)
                 skull_current_animation = "SkullLeft"
@@ -626,13 +611,12 @@ def create_skull(x, y):
                 animation.run_image_animation(Skull, SkullRight, 1000, True)
                 skull_current_animation = "SkullRight"
 
-    # Registrar funciones de actualización
     game.on_update(skull_patrol)
     game.on_update(skull_detect_and_chase)
     game.on_update(skull_attack_player)
     game.on_update(skull_animations)
 
-
+#Funcio per crear els cors
 def create_hearts():
     global hearts
     for i in range(3):
@@ -643,17 +627,15 @@ def create_hearts():
         heart.set_position(120 + i * 15, 10)
         hearts.append(heart)
         heart.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
-
+#Funcio per eliminar cors
 def lose_heart():
     global heart_count, memoryScore
     if heart_count > 0:
-        # Quitar un corazón visualmente
         hearts[heart_count - 1].destroy()
         heart_count -= 1
         is_taking_damage = True
         damage_time = game.runtime()
 
-        # Configurar animación de daño dependiendo de la dirección actual
         if currentAnimationEON == "Left":
             animation.stop_animation(animation.AnimationTypes.ALL, EON)
             animation.run_image_animation(EON, DamageLeft, 200, False)
@@ -662,7 +644,7 @@ def lose_heart():
             animation.run_image_animation(EON, DamageRight, 200, False)
         if heart_count == 0:
             returnLevelSelector(memoryScore)
-
+#Funcio per controlar si un projectil del mago colisiona amb EON
 def check_collision_with_projectile():
     global heart_count
     for projectile in sprites.all_of_kind(SpriteKind.projectile):
@@ -670,7 +652,7 @@ def check_collision_with_projectile():
             projectile.destroy()  # Eliminar el proyectil
             lose_heart()
 game.on_update(check_collision_with_projectile)
-
+#Funcio per reiniciar valors i tornar al selector de nivells
 def returnLevelSelector(setScore):
     global score, patrol_direction, last_shot_time, current_animation, heart_count, hearts, isLevel, score_label, currentAnimationEON, damage_time, is_taking_damage
     isLevel = False
@@ -692,7 +674,35 @@ def returnLevelSelector(setScore):
         CleanLevel
     """))
     levelSelector()
+#Funcio amb el lore final i el final del joc
+def sceneFinal():
+    global score, patrol_direction, last_shot_time, current_animation, heart_count, hearts, isLevel, score_label, currentAnimationEON, damage_time, is_taking_damage
+    isLevel = False
+    sprites.destroy_all_sprites_of_kind(SpriteKind.EON)
+    sprites.destroy_all_sprites_of_kind(SpriteKind.soul)
+    sprites.destroy_all_sprites_of_kind(SpriteKind.powerup)
+    sprites.destroy_all_sprites_of_kind(SpriteKind.enemy)
+    sprites.destroy_all_sprites_of_kind(SpriteKind.projectile)
+    sprites.destroy_all_sprites_of_kind(SpriteKind.UI)
+    sprites.destroy_all_sprites_of_kind(SpriteKind.EON)
+    sprites.destroy_all_sprites_of_kind(SpriteKind.portal)
+    score_label.set_text("")
+    score_label = None
+    patrol_direction = 1
+    last_shot_time = 0
+    current_animation = ""
+    heart_count = 3
+    hearts = []
+    tiles.set_current_tilemap(tilemap("""
+        CleanLevel
+    """))
+    scene.set_background_image(assets.image("""FinalScene"""))
+    game.show_long_text("Amb aquesta victoria, EON aconsigueix aclarir el mon The Domain Of Silence, alliberant les ànimes corruptes de 'Echo' i 'Quietus'",
+        DialogLayout.BOTTOM)
+    game.splash("Felicitas, has guanyat amb " + str(score) + " ànimes recollides. Gràcies per jugar al nostre joc!")  # Mostrar mensaje
+    game.over(True, effects.confetti)    
 
+#VARIABLES
 EON: Sprite = None
 RecPlay: Sprite = None
 LevelOne:Sprite = None
@@ -708,7 +718,7 @@ Soul5:Sprite = None
 DoubleJump:Sprite = None
 MaxStrenght:Sprite = None
 lookLeft: List[Image] = []
-score = 5
+score = 0
 memoryScore = score
 score_label:TextSprite = None
 score_sprite:Sprite = None
@@ -748,7 +758,7 @@ boss_is_attacking = False  # Indica si el jefe está atacando
 boss_last_attack_time = 0  # Último momento en el que el jefe atacó
 boss_current_animation = ""  # Animación actual del jefe
 last_attack_time = 0
-
+#ANIMACIONS
 scene.set_background_image(assets.image("""
     myImage
 """))
@@ -834,20 +844,16 @@ BossAttackLeft = assets.animation("""
 BossAttackRight = assets.animation("""
     Boss1AttackRight
 """)
-
+#Funcio per controlar animacions de EON
 def on_on_update():
     global is_taking_damage, damage_time, currentAnimationEON, isLevel, canAttack
     if is_taking_damage:
         canAttack = False
-        # Calcular tiempo transcurrido desde el daño
         elapsed_time = game.runtime() - damage_time
-        if elapsed_time < 500:  # Estado de daño dura 500 ms
-            return  # Evitar ejecutar otras animaciones
+        if elapsed_time < 500: 
+            return 
         else:
-            # Terminar el estado de daño después de 500 ms
             is_taking_damage = False
-
-    # Si no está en daño, manejar animaciones normales
 
     if controller.A.is_pressed() and isLevel:
         if currentAnimationEON == "Left":
@@ -864,7 +870,7 @@ def on_on_update():
         animation.run_image_animation(EON, lookRight, 200, True)
         canAttack = False
 game.on_update(on_on_update)
-
+#FUNCIOS PER CONTROLAR COLISIONS
 def on_on_overlap(sprite, otherSprite):
     otherSprite.start_effect(effects.bubbles, 21)
     if otherSprite == LevelOne:
@@ -927,9 +933,12 @@ sprites.on_overlap(SpriteKind.EON, SpriteKind.powerup, on_on_overlap3)
 def on_on_overlap4(sprite4, otherSprite4):
     global levelsPass, score, whatLevel
     if otherSprite4 == Portal and controller.A.is_pressed():
-        levelsPass[whatLevel] = True
-        otherSprite4.destroy()
-        returnLevelSelector(score)
+        if whatLevel == 3:
+            sceneFinal()
+        else:
+            levelsPass[whatLevel] = True
+            otherSprite4.destroy()
+            returnLevelSelector(score)
 sprites.on_overlap(SpriteKind.EON, SpriteKind.portal, on_on_overlap4)
 
 def on_on_overlap5(sprite5, otherSprite5):
@@ -959,12 +968,12 @@ def on_on_overlap7(sprite7, otherSprite7):
 
         if boss_health <= 0:
             print("El jefe ha sido derrotado")
-            Boss.destroy()  # 500 ms de cooldown entre ataques (ajustable)
+            Boss.destroy(effects.disintegrate, 1000)  # 500 ms de cooldown entre ataques (ajustable)
             
 sprites.on_overlap(SpriteKind.EON, SpriteKind.boss, on_on_overlap7)
 
 skull_is_attacking
-
+#FUNCIONS PER CONTROLAR ELS TEMPS DELS POWERUPS
 def update_timer_DJ():
     global DJ_time, countdown_active_DJ, DJ_label, isDoubleJump
     if countdown_active_DJ:

@@ -1,3 +1,4 @@
+// Clase per controlar els tipus d'objectes
 namespace SpriteKind {
     export const level = SpriteKind.create()
     export const EON = SpriteKind.create()
@@ -10,7 +11,8 @@ namespace SpriteKind {
     export const boss = SpriteKind.create()
 }
 
-let levelsPass = [true, false, true]
+let levelsPass = [true, false, false]
+// MAIN
 function play() {
     
     RecPlay = sprites.create(assets.image`
@@ -27,6 +29,7 @@ function play() {
     sceneOne()
 }
 
+// Pantalla per escollir nivell
 function levelSelector() {
     
     tiles.setCurrentTilemap(tilemap`
@@ -75,6 +78,7 @@ function levelSelector() {
     controller.moveSprite(EON)
 }
 
+// Escenes amb lore
 function sceneTwo() {
     scene.setBackgroundImage(assets.image`
         SceneTwo
@@ -91,6 +95,8 @@ function sceneOne() {
     sceneTwo()
 }
 
+// NIVELLS
+// Funcions amb la generació dels 3 nivells
 function FirstLevel() {
     
     whatLevel = 1
@@ -301,6 +307,7 @@ function SecondLevel() {
 
 function ThirdLevel() {
     
+    whatLevel = 3
     memoryScore = score
     isLevel = true
     update_score()
@@ -328,7 +335,6 @@ function ThirdLevel() {
         `, SpriteKind.powerup)
     Portal = sprites.create(assets.image`Portal`, SpriteKind.portal)
     Portal.z = 1
-    // NO TOQUES ESTA POSICION DEL PORTAL
     Portal.setPosition(1950, 140)
     Portal.ay = 200
     Soul.setPosition(304, 168)
@@ -410,48 +416,36 @@ function ThirdLevel() {
     })
 }
 
+// Funció per crear el boss i controlar estats i animacions
 function create_boss() {
     
-    //  Inicialización de variables globales
     boss_health = 10
     boss_is_attacking = false
     boss_last_attack_time = 0
     boss_current_animation = ""
-    //  Crear el sprite del jefe
     Boss = sprites.create(assets.image`
         Boss1
     `, SpriteKind.boss)
     Boss.setPosition(1800, 140)
-    //  Posición inicial
     Boss.ay = 200
-    //  Gravedad aplicada al jefe
-    //  Establecer hitbox fija
     Boss.setHitbox()
-    //  Animación por defecto: IdleLeft
     animation.runImageAnimation(Boss, BossIdleLeft, 1000, true)
     boss_current_animation = "IdleLeft"
-    //  Detectar y perseguir a EON
-    //  Registrar la función para ejecutarse en cada actualización
     game.onUpdate(function boss_behaviour() {
         let current_time: number;
         
         let distance_to_player = Math.abs(Boss.x - EON.x)
-        //  Distancia horizontal entre Boss y EON
         if (distance_to_player > 100) {
-            //  Zona de patrullaje (fuera de la detección de EON)
             boss_is_attacking = false
             Boss.vx = -30
-            //  Velocidad baja para patrullaje
             if (boss_current_animation != "RunLeft") {
                 animation.runImageAnimation(Boss, BossRunLeft, 500, true)
                 boss_current_animation = "RunLeft"
             }
             
         } else if (30 < distance_to_player && distance_to_player <= 100) {
-            //  Zona de detección (persecución)
             boss_is_attacking = false
             Boss.vx = Boss.x < EON.x ? 60 : -60
-            //  Aumentar velocidad en persecución
             if (Boss.vx > 0 && boss_current_animation != "RunRight") {
                 animation.runImageAnimation(Boss, BossRunRight, 500, true)
                 boss_current_animation = "RunRight"
@@ -461,17 +455,11 @@ function create_boss() {
             }
             
         } else if (distance_to_player <= 30) {
-            //  Zona de ataque
             boss_is_attacking = true
             Boss.vx = 0
-            //  El jefe se detiene para atacar
             current_time = game.runtime()
             if (current_time - boss_last_attack_time > 1000) {
-                //  Delay entre ataques (1 segundo)
-                //  Mantener al jefe en la posición vertical actual
                 Boss.y = 155
-                //  Ajustar según el tamaño del sprite
-                //  Configurar animación de ataque
                 if (Boss.x < EON.x && boss_current_animation != "AttackRight") {
                     animation.runImageAnimation(Boss, BossAttackRight, 300, true)
                     boss_current_animation = "AttackRight"
@@ -480,7 +468,6 @@ function create_boss() {
                     boss_current_animation = "AttackLeft"
                 }
                 
-                //  Aplicar daño a EON si está cerca
                 if (Boss.overlapsWith(EON)) {
                     lose_heart()
                 }
@@ -493,6 +480,7 @@ function create_boss() {
     })
 }
 
+// Funcio per mostrar score personalitzat i posar-ho al centre
 function update_score() {
     
     if (score_label === null) {
@@ -518,44 +506,31 @@ function center_score() {
     score_label.setPosition(center_x + score_sprite.width + 5, 11)
 }
 
+// Funcio per crear al mag i controlar stats i animacions
 function create_enemy(x: number, y: number) {
     
     is_attacking = false
     patrol_direction = -1
     last_shot_time = game.runtime()
-    //  1 para la derecha, -1 para la izquierda
-    //  Crear el enemigo
     Mago = sprites.create(assets.image`
         Mago
     `, SpriteKind.enemy)
     Mago.setPosition(x, y)
     Mago.ay = 200
-    //  Configurar el comportamiento del enemigo
-    //  Vuelve al modo patrulla si el jugador se aleja
     function attack_player() {
         let current_time: number;
         
         if (is_attacking) {
             Mago.vx = 0
-            //  Detener el movimiento
             current_time = game.runtime()
-            //  Tiempo actual del juego
             if (current_time - last_shot_time > 1000 && current_animation != "" && !isDead) {
-                //  Dispara cada 1 segundo
-                //  Crear un proyectil
                 projectile = sprites.createProjectileFromSprite(assets.image`
                         Bola
                     `, Mago, (EON.x - Mago.x) / Math.abs(EON.x - Mago.x) * 100, 0)
-                //  Imagen del proyectil
-                //  El enemigo dispara
-                //  Velocidad en X dirigida al jugador
-                //  Velocidad en Y (horizontal)
                 projectile.setKind(SpriteKind.projectile)
                 if (EON.x - Mago.x < 0) {
-                    //  Jugador a la izquierda
                     animation.runImageAnimation(projectile, BallLeft, 250, true)
                 } else {
-                    //  Jugador a la derecha
                     animation.runImageAnimation(projectile, BallRight, 250, true)
                 }
                 
@@ -566,18 +541,14 @@ function create_enemy(x: number, y: number) {
         
     }
     
-    //  Comportamiento continuo
     game.onUpdate(function patrol() {
         
         if (!is_attacking) {
-            //  Solo patrulla si no está atacando
             Mago.vx = patrol_direction * 50
-            //  Velocidad de patrullaje
             if (tiles.tileAtLocationEquals(Mago.tilemapLocation(), assets.tile`
-                            PatrolStopMago
+                            PatrolStop
                         `)) {
                 patrol_direction *= -1
-                //  Cambiar dirección
                 Mago.vx = patrol_direction * 50
             }
             
@@ -587,9 +558,7 @@ function create_enemy(x: number, y: number) {
     game.onUpdate(function detect_player() {
         
         let distance_to_player = Math.abs(Mago.x - EON.x)
-        //  Distancia horizontal
         if (distance_to_player < 80) {
-            //  Detecta al jugador si está cerca
             is_attacking = true
             attack_player()
         } else {
@@ -609,7 +578,6 @@ function create_enemy(x: number, y: number) {
     game.onUpdate(function on_on_update2() {
         
         if (!is_attacking && isLevel) {
-            //  Solo anima en patrullaje si no está atacando
             if (patrol_direction == -1 && current_animation != "MageLeft") {
                 animation.runImageAnimation(Mago, MageLeft, 1000, true)
                 current_animation = "MageLeft"
@@ -624,13 +592,10 @@ function create_enemy(x: number, y: number) {
     game.onUpdate(function on_on_update3() {
         
         if (is_attacking && isLevel) {
-            //  Solo anima si está atacando
             if (EON.x - Mago.x < 0 && current_animation != "MageLeftAttack") {
-                //  Jugador a la izquierda
                 animation.runImageAnimation(Mago, MageLeftAttack, 250, true)
                 current_animation = "MageLeftAttack"
             } else if (EON.x - Mago.x > 0 && current_animation != "MageRightAttack") {
-                //  Jugador a la derecha
                 animation.runImageAnimation(Mago, MageRightAttack, 250, true)
                 current_animation = "MageRightAttack"
             }
@@ -640,38 +605,26 @@ function create_enemy(x: number, y: number) {
     })
 }
 
+// Funció per crear enemic skull, controlant stats i animacions
 function create_skull(x: number, y: number) {
     
     skull_is_attacking = false
     skull_patrol_direction = -1
-    //  Dirección inicial de patrullaje (-1: izquierda, 1: derecha)
     skull_last_attack_time = game.runtime()
     skull_current_animation = ""
-    //  Crear el enemigo Skull
     Skull = sprites.create(assets.image`
         Skull
     `, SpriteKind.enemy)
     Skull.setPosition(x, y)
-    //  Posición inicial del enemigo
     Skull.ay = 200
-    //  Gravedad para mantener al enemigo en el suelo
-    //  Configurar patrullaje
-    //  Detectar a EON y entrar en modo ataque
-    //  Atacar a EON
-    //  Animaciones de patrullaje
-    //  Registrar funciones de actualización
     game.onUpdate(function skull_patrol() {
         
         if (!skull_is_attacking) {
-            //  Solo patrulla si no está atacando
             Skull.vx = skull_patrol_direction * 50
-            //  Velocidad de patrullaje
-            //  Detectar si está en un tile de borde y cambiar de dirección
             if (tiles.tileAtLocationEquals(Skull.tilemapLocation(), assets.tile`
-                PatrolStopMago
+                PatrolStop
             `)) {
                 skull_patrol_direction *= -1
-                //  Cambiar dirección
                 Skull.vx = skull_patrol_direction * 50
             }
             
@@ -681,16 +634,12 @@ function create_skull(x: number, y: number) {
     game.onUpdate(function skull_detect_and_chase() {
         
         let distance_to_player = Math.abs(Skull.x - EON.x)
-        //  Distancia horizontal entre Skull y EON
         if (distance_to_player < 50) {
-            //  Detecta a EON dentro de un rango
             skull_is_attacking = true
         } else if (distance_to_player > 80) {
-            //  Si se aleja mucho, vuelve a patrullar
             skull_is_attacking = false
         }
         
-        //  Si está atacando, perseguir a EON
         if (skull_is_attacking) {
             Skull.vx = Skull.x < EON.x ? 80 : -80
         }
@@ -700,22 +649,16 @@ function create_skull(x: number, y: number) {
         let current_time: number;
         
         if (skull_is_attacking && Math.abs(Skull.x - EON.x) < 10) {
-            //  Si está cerca del jugador
             Skull.vx = 0
-            //  Detener el movimiento para atacar
             current_time = game.runtime()
             if (current_time - skull_last_attack_time > 1000) {
-                //  1 segundo entre ataques
-                //  Determinar la dirección de ataque
                 if (Skull.x > EON.x) {
-                    //  Jugador a la izquierda
                     if (skull_current_animation != "SkullLeftAttack") {
                         animation.runImageAnimation(Skull, SkullLeftAttack, 250, true)
                         skull_current_animation = "SkullLeftAttack"
                     }
                     
                 } else if (Skull.x < EON.x) {
-                    //  Jugador a la derecha
                     if (skull_current_animation != "SkullRightAttack") {
                         animation.runImageAnimation(Skull, SkullRightAttack, 250, true)
                         skull_current_animation = "SkullRightAttack"
@@ -723,7 +666,6 @@ function create_skull(x: number, y: number) {
                     
                 }
                 
-                //  Aplicar daño si está en contacto con EON
                 if (Skull.overlapsWith(EON)) {
                     lose_heart()
                 }
@@ -732,7 +674,6 @@ function create_skull(x: number, y: number) {
             }
             
         } else if (skull_is_attacking && Skull.vx != 0) {
-            //  Mantener dirección correcta mientras persigue
             if (Skull.vx > 0 && skull_current_animation != "SkullRightAttack") {
                 animation.runImageAnimation(Skull, SkullRightAttack, 250, true)
                 skull_current_animation = "SkullRightAttack"
@@ -747,7 +688,6 @@ function create_skull(x: number, y: number) {
     game.onUpdate(function skull_animations() {
         
         if (!skull_is_attacking) {
-            //  Solo anima en patrullaje si no está atacando
             if (skull_patrol_direction == -1 && skull_current_animation != "SkullLeft") {
                 animation.runImageAnimation(Skull, SkullLeft, 1000, true)
                 skull_current_animation = "SkullLeft"
@@ -761,6 +701,7 @@ function create_skull(x: number, y: number) {
     })
 }
 
+// Funcio per crear els cors
 function create_hearts() {
     let heart: Sprite;
     
@@ -775,17 +716,16 @@ function create_hearts() {
     }
 }
 
+// Funcio per eliminar cors
 function lose_heart() {
     let is_taking_damage: boolean;
     let damage_time: number;
     
     if (heart_count > 0) {
-        //  Quitar un corazón visualmente
         hearts[heart_count - 1].destroy()
         heart_count -= 1
         is_taking_damage = true
         damage_time = game.runtime()
-        //  Configurar animación de daño dependiendo de la dirección actual
         if (currentAnimationEON == "Left") {
             animation.stopAnimation(animation.AnimationTypes.All, EON)
             animation.runImageAnimation(EON, DamageLeft, 200, false)
@@ -802,6 +742,7 @@ function lose_heart() {
     
 }
 
+// Funcio per controlar si un projectil del mago colisiona amb EON
 game.onUpdate(function check_collision_with_projectile() {
     
     for (let projectile of sprites.allOfKind(SpriteKind.projectile)) {
@@ -813,6 +754,7 @@ game.onUpdate(function check_collision_with_projectile() {
         
     }
 })
+// Funcio per reiniciar valors i tornar al selector de nivells
 function returnLevelSelector(setScore: number) {
     
     isLevel = false
@@ -836,6 +778,36 @@ function returnLevelSelector(setScore: number) {
     levelSelector()
 }
 
+// Funcio amb el lore final i el final del joc
+function sceneFinal() {
+    
+    isLevel = false
+    sprites.destroyAllSpritesOfKind(SpriteKind.EON)
+    sprites.destroyAllSpritesOfKind(SpriteKind.soul)
+    sprites.destroyAllSpritesOfKind(SpriteKind.powerup)
+    sprites.destroyAllSpritesOfKind(SpriteKind.enemy)
+    sprites.destroyAllSpritesOfKind(SpriteKind.projectile)
+    sprites.destroyAllSpritesOfKind(SpriteKind.UI)
+    sprites.destroyAllSpritesOfKind(SpriteKind.EON)
+    sprites.destroyAllSpritesOfKind(SpriteKind.portal)
+    score_label.setText("")
+    score_label = null
+    patrol_direction = 1
+    last_shot_time = 0
+    current_animation = ""
+    heart_count = 3
+    hearts = []
+    tiles.setCurrentTilemap(tilemap`
+        CleanLevel
+    `)
+    scene.setBackgroundImage(assets.image`FinalScene`)
+    game.showLongText("Amb aquesta victoria, EON aconsigueix aclarir el mon The Domain Of Silence, alliberant les ànimes corruptes de 'Echo' i 'Quietus'", DialogLayout.Bottom)
+    game.splash("Felicitas, has guanyat amb " + ("" + score) + " ànimes recollides. Gràcies per jugar al nostre joc!")
+    //  Mostrar mensaje
+    game.over(true, effects.confetti)
+}
+
+// VARIABLES
 let EON : Sprite = null
 let RecPlay : Sprite = null
 let LevelOne : Sprite = null
@@ -851,7 +823,7 @@ let Soul5 : Sprite = null
 let DoubleJump : Sprite = null
 let MaxStrenght : Sprite = null
 let lookLeft : Image[] = []
-let score = 5
+let score = 0
 let memoryScore = score
 let score_label : TextSprite = null
 let score_sprite : Sprite = null
@@ -896,6 +868,7 @@ let boss_last_attack_time = 0
 let boss_current_animation = ""
 //  Animación actual del jefe
 let last_attack_time = 0
+// ANIMACIONS
 scene.setBackgroundImage(assets.image`
     myImage
 `)
@@ -981,25 +954,21 @@ let BossAttackLeft = assets.animation`
 let BossAttackRight = assets.animation`
     Boss1AttackRight
 `
+// Funcio per controlar animacions de EON
 game.onUpdate(function on_on_update() {
     let elapsed_time: number;
     
     if (is_taking_damage) {
         canAttack = false
-        //  Calcular tiempo transcurrido desde el daño
         elapsed_time = game.runtime() - damage_time
         if (elapsed_time < 500) {
-            //  Estado de daño dura 500 ms
             return
         } else {
-            //  Evitar ejecutar otras animaciones
-            //  Terminar el estado de daño después de 500 ms
             is_taking_damage = false
         }
         
     }
     
-    //  Si no está en daño, manejar animaciones normales
     if (controller.A.isPressed() && isLevel) {
         if (currentAnimationEON == "Left") {
             animation.runImageAnimation(EON, attackLeft, 50, false)
@@ -1021,6 +990,7 @@ game.onUpdate(function on_on_update() {
     }
     
 })
+// FUNCIOS PER CONTROLAR COLISIONS
 sprites.onOverlap(SpriteKind.EON, SpriteKind.level, function on_on_overlap(sprite: Sprite, otherSprite: Sprite) {
     otherSprite.startEffect(effects.bubbles, 21)
     if (otherSprite == LevelOne) {
@@ -1094,9 +1064,14 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.powerup, function on_on_overlap3(sp
 sprites.onOverlap(SpriteKind.EON, SpriteKind.portal, function on_on_overlap4(sprite4: Sprite, otherSprite4: Sprite) {
     
     if (otherSprite4 == Portal && controller.A.isPressed()) {
-        levelsPass[whatLevel] = true
-        otherSprite4.destroy()
-        returnLevelSelector(score)
+        if (whatLevel == 3) {
+            sceneFinal()
+        } else {
+            levelsPass[whatLevel] = true
+            otherSprite4.destroy()
+            returnLevelSelector(score)
+        }
+        
     }
     
 })
@@ -1134,13 +1109,14 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.boss, function on_on_overlap7(sprit
         //  Actualizar el tiempo del último ataque
         if (boss_health <= 0) {
             console.log("El jefe ha sido derrotado")
-            Boss.destroy()
+            Boss.destroy(effects.disintegrate, 1000)
         }
         
     }
     
 })
 skull_is_attacking
+// FUNCIONS PER CONTROLAR ELS TEMPS DELS POWERUPS
 game.onUpdateInterval(1000, function update_timer_DJ() {
     
     if (countdown_active_DJ) {
