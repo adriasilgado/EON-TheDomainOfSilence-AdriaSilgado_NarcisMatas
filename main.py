@@ -240,10 +240,8 @@ def SecondLevel():
         LevelTwoBlock.destroy()
     if LevelThreeBlock != None:
         LevelThreeBlock.destroy()
-    create_enemy(469,288)
+    create_enemy(1056,288)
     create_skull(312,312) 
-    create_enemy(800, 50)
-    create_skull(1056,288)   
     
     
     def on_b_pressed():
@@ -297,13 +295,13 @@ def ThirdLevel():
     #NO TOQUES ESTA POSICION DEL PORTAL
     Portal.set_position(1950, 140)
     Portal.ay = 200
-    Soul.set_position(80, 160)
-    Soul2.set_position(100, 160)
-    Soul3.set_position(120, 160)
-    Soul4.set_position(140, 160)
-    Soul5.set_position(160, 160)
-    DoubleJump.set_position(100, 150)
-    MaxStrenght.set_position(140, 150)
+    Soul.set_position(304, 168)
+    Soul2.set_position(560, 184)
+    Soul3.set_position(696, 168)
+    Soul4.set_position(1200, 72)
+    Soul5.set_position(1304, 184)
+    DoubleJump.set_position(800, 168)
+    MaxStrenght.set_position(1544, 136)
     animation.run_image_animation(Soul, soulMovement, 200, True)
     animation.run_image_animation(Soul2, soulMovement, 200, True)
     animation.run_image_animation(Soul3, soulMovement, 200, True)
@@ -322,7 +320,7 @@ def ThirdLevel():
     tiles.set_current_tilemap(tilemap("""
         nivel3
     """))
-    tiles.place_on_tile(EON, tiles.get_tile_location(5, 8))
+    tiles.place_on_tile(EON, tiles.get_tile_location(5, 10))
     if LevelOne != None:
         LevelOne.destroy()
     if LevelTwo != None:

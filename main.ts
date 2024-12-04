@@ -274,10 +274,8 @@ function SecondLevel() {
         LevelThreeBlock.destroy()
     }
     
-    create_enemy(469, 288)
+    create_enemy(1056, 288)
     create_skull(312, 312)
-    create_enemy(800, 50)
-    create_skull(1056, 288)
     controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
         
         if (EON.isHittingTile(CollisionDirection.Bottom)) {
@@ -333,13 +331,13 @@ function ThirdLevel() {
     // NO TOQUES ESTA POSICION DEL PORTAL
     Portal.setPosition(1950, 140)
     Portal.ay = 200
-    Soul.setPosition(80, 160)
-    Soul2.setPosition(100, 160)
-    Soul3.setPosition(120, 160)
-    Soul4.setPosition(140, 160)
-    Soul5.setPosition(160, 160)
-    DoubleJump.setPosition(100, 150)
-    MaxStrenght.setPosition(140, 150)
+    Soul.setPosition(304, 168)
+    Soul2.setPosition(560, 184)
+    Soul3.setPosition(696, 168)
+    Soul4.setPosition(1200, 72)
+    Soul5.setPosition(1304, 184)
+    DoubleJump.setPosition(800, 168)
+    MaxStrenght.setPosition(1544, 136)
     animation.runImageAnimation(Soul, soulMovement, 200, true)
     animation.runImageAnimation(Soul2, soulMovement, 200, true)
     animation.runImageAnimation(Soul3, soulMovement, 200, true)
@@ -358,7 +356,7 @@ function ThirdLevel() {
     tiles.setCurrentTilemap(tilemap`
         nivel3
     `)
-    tiles.placeOnTile(EON, tiles.getTileLocation(5, 8))
+    tiles.placeOnTile(EON, tiles.getTileLocation(5, 10))
     if (LevelOne != null) {
         LevelOne.destroy()
     }
