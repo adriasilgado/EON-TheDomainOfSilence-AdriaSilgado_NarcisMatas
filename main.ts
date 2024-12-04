@@ -7,9 +7,10 @@ namespace SpriteKind {
     export const projectile = SpriteKind.create()
     export const UI = SpriteKind.create()
     export const portal = SpriteKind.create()
+    export const boss = SpriteKind.create()
 }
 
-let levelsPass = [true, false, false]
+let levelsPass = [true, false, true]
 function play() {
     
     RecPlay = sprites.create(assets.image`
@@ -327,6 +328,7 @@ function ThirdLevel() {
         `, SpriteKind.powerup)
     Portal = sprites.create(assets.image`Portal`, SpriteKind.portal)
     Portal.z = 1
+    // NO TOQUES ESTA POSICION DEL PORTAL
     Portal.setPosition(1950, 140)
     Portal.ay = 200
     Soul.setPosition(80, 160)
@@ -352,9 +354,9 @@ function ThirdLevel() {
             Back
     `)
     tiles.setCurrentTilemap(tilemap`
-        nivel2
+        nivel3
     `)
-    tiles.placeOnTile(EON, tiles.getTileLocation(2, 8))
+    tiles.placeOnTile(EON, tiles.getTileLocation(5, 8))
     if (LevelOne != null) {
         LevelOne.destroy()
     }
@@ -375,8 +377,7 @@ function ThirdLevel() {
         LevelThreeBlock.destroy()
     }
     
-    create_enemy(800, 50)
-    create_skull(1350, 50)
+    create_boss()
     controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
         
         if (EON.isHittingTile(CollisionDirection.Bottom)) {
@@ -395,6 +396,98 @@ function ThirdLevel() {
         } else if (canDoubleJump && isDoubleJump) {
             EON.vy = -150
             canDoubleJump = false
+        }
+        
+    })
+    game.onUpdate(function endMap() {
+        
+        if (tiles.tileAtLocationEquals(EON.tilemapLocation(), assets.tile`
+                EndMap
+                `)) {
+            returnLevelSelector(memoryScore)
+        }
+        
+    })
+}
+
+function create_boss() {
+    
+    //  Inicialización de variables globales
+    boss_health = 10
+    boss_is_attacking = false
+    boss_last_attack_time = 0
+    boss_current_animation = ""
+    //  Crear el sprite del jefe
+    Boss = sprites.create(assets.image`
+        Boss1
+    `, SpriteKind.boss)
+    Boss.setPosition(1800, 140)
+    //  Posición inicial
+    Boss.ay = 200
+    //  Gravedad aplicada al jefe
+    //  Establecer hitbox fija
+    Boss.setHitbox()
+    //  Animación por defecto: IdleLeft
+    animation.runImageAnimation(Boss, BossIdleLeft, 1000, true)
+    boss_current_animation = "IdleLeft"
+    //  Detectar y perseguir a EON
+    //  Registrar la función para ejecutarse en cada actualización
+    game.onUpdate(function boss_behaviour() {
+        let current_time: number;
+        
+        let distance_to_player = Math.abs(Boss.x - EON.x)
+        //  Distancia horizontal entre Boss y EON
+        if (distance_to_player > 100) {
+            //  Zona de patrullaje (fuera de la detección de EON)
+            boss_is_attacking = false
+            Boss.vx = -30
+            //  Velocidad baja para patrullaje
+            if (boss_current_animation != "RunLeft") {
+                animation.runImageAnimation(Boss, BossRunLeft, 500, true)
+                boss_current_animation = "RunLeft"
+            }
+            
+        } else if (30 < distance_to_player && distance_to_player <= 100) {
+            //  Zona de detección (persecución)
+            boss_is_attacking = false
+            Boss.vx = Boss.x < EON.x ? 60 : -60
+            //  Aumentar velocidad en persecución
+            if (Boss.vx > 0 && boss_current_animation != "RunRight") {
+                animation.runImageAnimation(Boss, BossRunRight, 500, true)
+                boss_current_animation = "RunRight"
+            } else if (Boss.vx < 0 && boss_current_animation != "RunLeft") {
+                animation.runImageAnimation(Boss, BossRunLeft, 500, true)
+                boss_current_animation = "RunLeft"
+            }
+            
+        } else if (distance_to_player <= 30) {
+            //  Zona de ataque
+            boss_is_attacking = true
+            Boss.vx = 0
+            //  El jefe se detiene para atacar
+            current_time = game.runtime()
+            if (current_time - boss_last_attack_time > 1000) {
+                //  Delay entre ataques (1 segundo)
+                //  Mantener al jefe en la posición vertical actual
+                Boss.y = 155
+                //  Ajustar según el tamaño del sprite
+                //  Configurar animación de ataque
+                if (Boss.x < EON.x && boss_current_animation != "AttackRight") {
+                    animation.runImageAnimation(Boss, BossAttackRight, 300, true)
+                    boss_current_animation = "AttackRight"
+                } else if (Boss.x > EON.x && boss_current_animation != "AttackLeft") {
+                    animation.runImageAnimation(Boss, BossAttackLeft, 300, true)
+                    boss_current_animation = "AttackLeft"
+                }
+                
+                //  Aplicar daño a EON si está cerca
+                if (Boss.overlapsWith(EON)) {
+                    lose_heart()
+                }
+                
+                boss_last_attack_time = current_time
+            }
+            
         }
         
     })
@@ -447,7 +540,6 @@ function create_enemy(x: number, y: number) {
             //  Detener el movimiento
             current_time = game.runtime()
             //  Tiempo actual del juego
-            console.log(current_animation)
             if (current_time - last_shot_time > 1000 && current_animation != "" && !isDead) {
                 //  Dispara cada 1 segundo
                 //  Crear un proyectil
@@ -693,7 +785,6 @@ function lose_heart() {
         heart_count -= 1
         is_taking_damage = true
         damage_time = game.runtime()
-        console.log("Estado de daño activado inmediatamente")
         //  Configurar animación de daño dependiendo de la dirección actual
         if (currentAnimationEON == "Left") {
             animation.stopAnimation(animation.AnimationTypes.All, EON)
@@ -794,6 +885,17 @@ let skull_last_attack_time = 0
 let skull_current_animation = ""
 let skull_live = 2
 let whatLevel = 0
+let Boss : Sprite = null
+//  El sprite del jefe
+let boss_health = 10
+//  Vida del jefe
+let boss_is_attacking = false
+//  Indica si el jefe está atacando
+let boss_last_attack_time = 0
+//  Último momento en el que el jefe atacó
+let boss_current_animation = ""
+//  Animación actual del jefe
+let last_attack_time = 0
 scene.setBackgroundImage(assets.image`
     myImage
 `)
@@ -864,10 +966,24 @@ let DamageLeft = assets.animation`
 let PortalAnim = assets.animation`
     PortalFinal
 `
+let BossIdleLeft = assets.animation`
+    Boss1IdleLeft
+`
+let BossRunLeft = assets.animation`
+    Boss1RunLeft
+`
+let BossRunRight = assets.animation`
+    Boss1RunRight
+`
+let BossAttackLeft = assets.animation`
+    Boss1AttackLeft
+`
+let BossAttackRight = assets.animation`
+    Boss1AttackRight
+`
 game.onUpdate(function on_on_update() {
     let elapsed_time: number;
     
-    console.log("Update - Estado de daño: {is_taking_damage}")
     if (is_taking_damage) {
         canAttack = false
         //  Calcular tiempo transcurrido desde el daño
@@ -879,7 +995,6 @@ game.onUpdate(function on_on_update() {
             //  Evitar ejecutar otras animaciones
             //  Terminar el estado de daño después de 500 ms
             is_taking_damage = false
-            console.log("Estado de daño desactivado")
         }
         
     }
@@ -929,6 +1044,7 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.level, function on_on_overlap(sprit
         if (controller.A.isPressed()) {
             otherSprite.destroy()
             effects.clearParticles(otherSprite)
+            ThirdLevel()
         }
         
     } else if (otherSprite == LevelTwoBlock || otherSprite == LevelThreeBlock) {
@@ -999,6 +1115,26 @@ sprites.onOverlap(SpriteKind.EON, SpriteKind.enemy, function on_on_overlap6(spri
         skull_live -= 1
         if (skull_live <= 0) {
             otherSprite6.destroy()
+        }
+        
+    }
+    
+})
+//  500 ms de cooldown entre ataques (ajustable)
+sprites.onOverlap(SpriteKind.EON, SpriteKind.boss, function on_on_overlap7(sprite7: Sprite, otherSprite7: Sprite) {
+    let last_attack_time: number;
+    
+    let current_time = game.runtime()
+    console.log("Vida boss: " + boss_health)
+    if (otherSprite7 == Boss && canAttack) {
+        boss_health -= 1
+        console.log("Vida boss: " + ("" + boss_health))
+        //  Imprimir la vida para ver el cambio
+        last_attack_time = current_time
+        //  Actualizar el tiempo del último ataque
+        if (boss_health <= 0) {
+            console.log("El jefe ha sido derrotado")
+            Boss.destroy()
         }
         
     }

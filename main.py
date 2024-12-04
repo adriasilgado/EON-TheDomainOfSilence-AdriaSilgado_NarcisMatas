@@ -8,7 +8,8 @@ class SpriteKind:
     projectile = SpriteKind.create()
     UI = SpriteKind.create()
     portal = SpriteKind.create()
-levelsPass = [True, False, False]
+    boss = SpriteKind.create()
+levelsPass = [True, False, True]
 def play():
     global RecPlay
     RecPlay = sprites.create(assets.image("""
@@ -291,6 +292,7 @@ def ThirdLevel():
         """), SpriteKind.powerup)
     Portal = sprites.create(assets.image("""Portal"""), SpriteKind.portal)
     Portal.z = 1
+    #NO TOQUES ESTA POSICION DEL PORTAL
     Portal.set_position(1950, 140)
     Portal.ay = 200
     Soul.set_position(80, 160)
@@ -316,9 +318,9 @@ def ThirdLevel():
             Back
     """))
     tiles.set_current_tilemap(tilemap("""
-        nivel2
+        nivel3
     """))
-    tiles.place_on_tile(EON, tiles.get_tile_location(2, 8))
+    tiles.place_on_tile(EON, tiles.get_tile_location(5, 8))
     if LevelOne != None:
         LevelOne.destroy()
     if LevelTwo != None:
@@ -329,8 +331,7 @@ def ThirdLevel():
         LevelTwoBlock.destroy()
     if LevelThreeBlock != None:
         LevelThreeBlock.destroy()
-    create_enemy(800, 50)
-    create_skull(1350, 50)
+    create_boss()
     
     
     def on_b_pressed():
@@ -352,6 +353,84 @@ def ThirdLevel():
             canDoubleJump = False
     controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
 
+    def endMap():
+        global memoryScore
+        if tiles.tile_at_location_equals(EON.tilemap_location(), assets.tile("""
+                EndMap
+                """)):
+            returnLevelSelector(memoryScore)
+    game.on_update(endMap)
+
+
+def create_boss():
+    global Boss, boss_health, boss_is_attacking, boss_last_attack_time, boss_current_animation
+
+    # Inicialización de variables globales
+    boss_health = 10
+    boss_is_attacking = False
+    boss_last_attack_time = 0
+    boss_current_animation = ""
+
+    # Crear el sprite del jefe
+    Boss = sprites.create(assets.image("""
+        Boss1
+    """), SpriteKind.boss)
+    Boss.set_position(1800, 140)  # Posición inicial
+    Boss.ay = 200  # Gravedad aplicada al jefe
+
+    # Establecer hitbox fija
+    Boss.set_hitbox()
+
+    # Animación por defecto: IdleLeft
+    animation.run_image_animation(Boss, BossIdleLeft, 1000, True)
+    boss_current_animation = "IdleLeft"
+
+    # Detectar y perseguir a EON
+    def boss_behaviour():
+        global boss_is_attacking, boss_current_animation, boss_last_attack_time
+
+        distance_to_player = Math.abs(Boss.x - EON.x)  # Distancia horizontal entre Boss y EON
+
+        if distance_to_player > 100:  # Zona de patrullaje (fuera de la detección de EON)
+            boss_is_attacking = False
+            Boss.vx = -30  # Velocidad baja para patrullaje
+            if boss_current_animation != "RunLeft":
+                animation.run_image_animation(Boss, BossRunLeft, 500, True)
+                boss_current_animation = "RunLeft"
+
+        elif 30 < distance_to_player <= 100:  # Zona de detección (persecución)
+            boss_is_attacking = False
+            Boss.vx = 60 if Boss.x < EON.x else -60  # Aumentar velocidad en persecución
+            if Boss.vx > 0 and boss_current_animation != "RunRight":
+                animation.run_image_animation(Boss, BossRunRight, 500, True)
+                boss_current_animation = "RunRight"
+            elif Boss.vx < 0 and boss_current_animation != "RunLeft":
+                animation.run_image_animation(Boss, BossRunLeft, 500, True)
+                boss_current_animation = "RunLeft"
+
+        elif distance_to_player <= 30:  # Zona de ataque
+            boss_is_attacking = True
+            Boss.vx = 0  # El jefe se detiene para atacar
+            current_time = game.runtime()
+            if current_time - boss_last_attack_time > 1000:  # Delay entre ataques (1 segundo)
+                # Mantener al jefe en la posición vertical actual
+                Boss.y = 155  # Ajustar según el tamaño del sprite
+
+                # Configurar animación de ataque
+                if Boss.x < EON.x and boss_current_animation != "AttackRight":
+                    animation.run_image_animation(Boss, BossAttackRight, 300, True)
+                    boss_current_animation = "AttackRight"
+                elif Boss.x > EON.x and boss_current_animation != "AttackLeft":
+                    animation.run_image_animation(Boss, BossAttackLeft, 300, True)
+                    boss_current_animation = "AttackLeft"
+
+                # Aplicar daño a EON si está cerca
+                if Boss.overlaps_with(EON):
+                    lose_heart()
+                boss_last_attack_time = current_time
+
+    # Registrar la función para ejecutarse en cada actualización
+    game.on_update(boss_behaviour)
 
 def update_score():
     global score_label, score_sprite, score
@@ -414,7 +493,6 @@ def create_enemy(x, y):
         if is_attacking:
             Mago.vx = 0  # Detener el movimiento
             current_time = game.runtime()  # Tiempo actual del juego
-            print (current_animation)
             if current_time - last_shot_time > 1000 and current_animation != "" and not isDead:  # Dispara cada 1 segundo
                 # Crear un proyectil
                 projectile = sprites.create_projectile_from_sprite(
@@ -574,7 +652,6 @@ def lose_heart():
         heart_count -= 1
         is_taking_damage = True
         damage_time = game.runtime()
-        print("Estado de daño activado inmediatamente")
 
         # Configurar animación de daño dependiendo de la dirección actual
         if currentAnimationEON == "Left":
@@ -665,6 +742,12 @@ skull_last_attack_time = 0
 skull_current_animation = ""
 skull_live = 2
 whatLevel = 0
+Boss:Sprite = None  # El sprite del jefe
+boss_health = 10  # Vida del jefe
+boss_is_attacking = False  # Indica si el jefe está atacando
+boss_last_attack_time = 0  # Último momento en el que el jefe atacó
+boss_current_animation = ""  # Animación actual del jefe
+last_attack_time = 0
 
 scene.set_background_image(assets.image("""
     myImage
@@ -736,10 +819,24 @@ DamageLeft = assets.animation("""
 PortalAnim = assets.animation("""
     PortalFinal
 """)
+BossIdleLeft = assets.animation("""
+    Boss1IdleLeft
+""")
+BossRunLeft = assets.animation("""
+    Boss1RunLeft
+""")
+BossRunRight = assets.animation("""
+    Boss1RunRight
+""")
+BossAttackLeft = assets.animation("""
+    Boss1AttackLeft
+""")
+BossAttackRight = assets.animation("""
+    Boss1AttackRight
+""")
 
 def on_on_update():
     global is_taking_damage, damage_time, currentAnimationEON, isLevel, canAttack
-    print(f"Update - Estado de daño: {is_taking_damage}")
     if is_taking_damage:
         canAttack = False
         # Calcular tiempo transcurrido desde el daño
@@ -749,7 +846,6 @@ def on_on_update():
         else:
             # Terminar el estado de daño después de 500 ms
             is_taking_damage = False
-            print("Estado de daño desactivado")
 
     # Si no está en daño, manejar animaciones normales
 
@@ -788,6 +884,7 @@ def on_on_overlap(sprite, otherSprite):
         if controller.A.is_pressed():
             otherSprite.destroy()
             effects.clear_particles(otherSprite)
+            ThirdLevel()
     elif otherSprite == LevelTwoBlock or otherSprite == LevelThreeBlock:
         EON.say_text("Has de passar-te l'anterior nivell!", 100, False)
         if controller.A.is_pressed():
@@ -850,6 +947,21 @@ def on_on_overlap6(sprite6, otherSprite6):
         if skull_live <= 0:
             otherSprite6.destroy()
 sprites.on_overlap(SpriteKind.EON, SpriteKind.enemy, on_on_overlap6)
+
+def on_on_overlap7(sprite7, otherSprite7):
+    global canAttack, boss_health
+    current_time = game.runtime()
+    print("Vida boss: " + boss_health)
+    if otherSprite7 == Boss and canAttack:
+        boss_health -= 1
+        print("Vida boss: " + str(boss_health))  # Imprimir la vida para ver el cambio
+        last_attack_time = current_time  # Actualizar el tiempo del último ataque
+
+        if boss_health <= 0:
+            print("El jefe ha sido derrotado")
+            Boss.destroy()  # 500 ms de cooldown entre ataques (ajustable)
+            
+sprites.on_overlap(SpriteKind.EON, SpriteKind.boss, on_on_overlap7)
 
 skull_is_attacking
 
