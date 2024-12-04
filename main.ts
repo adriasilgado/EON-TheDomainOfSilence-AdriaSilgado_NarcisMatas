@@ -226,15 +226,15 @@ function SecondLevel() {
         `, SpriteKind.powerup)
     Portal = sprites.create(assets.image`Portal`, SpriteKind.portal)
     Portal.z = 1
-    Portal.setPosition(1950, 140)
+    Portal.setPosition(1472, 320)
     Portal.ay = 200
-    Soul.setPosition(80, 160)
-    Soul2.setPosition(100, 160)
-    Soul3.setPosition(120, 160)
-    Soul4.setPosition(140, 160)
-    Soul5.setPosition(160, 160)
-    DoubleJump.setPosition(100, 150)
-    MaxStrenght.setPosition(140, 150)
+    Soul.setPosition(320, 232)
+    Soul2.setPosition(472, 168)
+    Soul3.setPosition(984, 280)
+    Soul4.setPosition(1056, 184)
+    Soul5.setPosition(712, 120)
+    DoubleJump.setPosition(584, 296)
+    MaxStrenght.setPosition(752, 312)
     animation.runImageAnimation(Soul, soulMovement, 200, true)
     animation.runImageAnimation(Soul2, soulMovement, 200, true)
     animation.runImageAnimation(Soul3, soulMovement, 200, true)
@@ -253,7 +253,7 @@ function SecondLevel() {
     tiles.setCurrentTilemap(tilemap`
         nivel2
     `)
-    tiles.placeOnTile(EON, tiles.getTileLocation(2, 8))
+    tiles.placeOnTile(EON, tiles.getTileLocation(6, 17))
     if (LevelOne != null) {
         LevelOne.destroy()
     }
@@ -274,8 +274,10 @@ function SecondLevel() {
         LevelThreeBlock.destroy()
     }
     
+    create_enemy(469, 288)
+    create_skull(312, 312)
     create_enemy(800, 50)
-    create_skull(1350, 50)
+    create_skull(1056, 288)
     controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
         
         if (EON.isHittingTile(CollisionDirection.Bottom)) {

@@ -202,15 +202,15 @@ def SecondLevel():
         """), SpriteKind.powerup)
     Portal = sprites.create(assets.image("""Portal"""), SpriteKind.portal)
     Portal.z = 1
-    Portal.set_position(1950, 140)
+    Portal.set_position(1472,320)
     Portal.ay = 200
-    Soul.set_position(80, 160)
-    Soul2.set_position(100, 160)
-    Soul3.set_position(120, 160)
-    Soul4.set_position(140, 160)
-    Soul5.set_position(160, 160)
-    DoubleJump.set_position(100, 150)
-    MaxStrenght.set_position(140, 150)
+    Soul.set_position(320,232)
+    Soul2.set_position(472,168)
+    Soul3.set_position(984,280)
+    Soul4.set_position(1056,184)
+    Soul5.set_position(712,120)
+    DoubleJump.set_position(584,296)
+    MaxStrenght.set_position(752,312)
     animation.run_image_animation(Soul, soulMovement, 200, True)
     animation.run_image_animation(Soul2, soulMovement, 200, True)
     animation.run_image_animation(Soul3, soulMovement, 200, True)
@@ -229,7 +229,7 @@ def SecondLevel():
     tiles.set_current_tilemap(tilemap("""
         nivel2
     """))
-    tiles.place_on_tile(EON, tiles.get_tile_location(2, 8))
+    tiles.place_on_tile(EON, tiles.get_tile_location(6, 17))
     if LevelOne != None:
         LevelOne.destroy()
     if LevelTwo != None:
@@ -240,8 +240,10 @@ def SecondLevel():
         LevelTwoBlock.destroy()
     if LevelThreeBlock != None:
         LevelThreeBlock.destroy()
+    create_enemy(469,288)
+    create_skull(312,312) 
     create_enemy(800, 50)
-    create_skull(1350, 50)    
+    create_skull(1056,288)   
     
     
     def on_b_pressed():
